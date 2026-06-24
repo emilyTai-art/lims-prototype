@@ -121,6 +121,28 @@
   .qual-warn-tag:hover::after { opacity: 1; }
   .qual-warn-cell { background: #fff2f0 !important; }
   .qual-warn-cell td:first-child { border-left: 3px solid #ff4d4f; }
+
+  /* ====== 统一流程审批样式 ====== */
+  .flow-progress-section { margin-bottom: 20px; }
+  .flow-progress-section h4 { font-size: 13px; color: #888; margin: 0 0 12px 0; }
+  .flow-timeline { padding: 0; }
+  .flow-node { display: flex; gap: 14px; padding: 12px 0; border-left: 2px solid #f0f0f0; padding-left: 20px; position: relative; }
+  .flow-node:last-child { border-left-color: transparent; }
+  .flow-node::before { content: ''; position: absolute; width: 12px; height: 12px; border-radius: 50%; left: -7px; top: 15px; background: #d9d9d9; }
+  .flow-node.done { border-left-color: #52c41a; }
+  .flow-node.done::before { background: #52c41a; }
+  .flow-node.current { border-left-color: #1890ff; }
+  .flow-node.current::before { background: #1890ff; box-shadow: 0 0 0 4px rgba(24,144,255,.2); }
+  .flow-node.rejected { border-left-color: #ff4d4f; }
+  .flow-node.rejected::before { background: #ff4d4f; }
+  .flow-node-content { flex: 1; min-width: 0; }
+  .flow-node-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .flow-node-header .node-name { font-size: 14px; font-weight: 600; }
+  .flow-node-info { font-size: 12px; color: #888; line-height: 1.6; }
+  .flow-node-info span { margin-right: 16px; }
+  .flow-node-opinion { font-size: 12px; color: #666; background: #fafafa; padding: 6px 10px; border-radius: 4px; margin-top: 6px; line-height: 1.5; }
+  .flow-node-opinion::before { content: '“'; color: #d9d9d9; }
+  .flow-node-opinion::after { content: '”'; color: #d9d9d9; }
 </style>
 </head>
 <body>
@@ -209,11 +231,13 @@
         </div>
       </div>
 
-      <!-- ====== 四、委托单审批记录 ====== -->
+      <!-- ====== 四、审批流程 ====== -->
       <div class="info-section">
-        <div class="info-section-header"><span class="section-num">四</span>委托单审批记录</div>
+        <div class="info-section-header"><span class="section-num">四</span>审批流程</div>
         <div class="info-section-body">
-          <table style="font-size:13px;"><thead><tr><th>审批节点</th><th>审批结果</th><th>审批意见</th><th>审批人</th><th>审批时间</th></tr></thead><tbody id="detailApprovalTable"></tbody></table>
+          <div class="flow-progress-section">
+            <div class="flow-timeline" id="detailFlowTimeline"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -426,9 +450,35 @@ function renderDetail() {
   });
   document.getElementById('detailSamplesContent').innerHTML = unitHtml||'<div style="text-align:center;padding:20px;color:#ccc;">暂无受检单位 & 样品</div>';
 
-  // ====== 四、优惠价格审批记录（来源：流程引擎审批节点记录） ======
-  document.getElementById('detailApprovalTable').innerHTML = i.approval_records.length===0?'<tr><td colspan="5" style="text-align:center;color:#ccc;padding:20px;">暂无审批记录（委托单尚未提交审批）</td></tr>' :
-    i.approval_records.map(function(r){return '<tr><td>'+r.node_name+'</td><td>'+vTag(r.result)+'</td><td style="max-width:300px;">'+(r.opinion||'-')+'</td><td>'+(r.approver||'-')+'</td><td>'+(r.approval_time||'<span style="color:#ccc;">待处理</span>')+'</td></tr>';}).join('');
+  // ====== 审批流程时间线 ======
+  var timelineHtml = '';
+  if (i.approval_records.length===0) {
+    timelineHtml = '<div style="text-align:center;padding:20px;color:#ccc;">暂无审批流程</div>';
+  } else {
+    var flowNodeStates = {
+      '通过': 'done', '已通过': 'done',
+      '通过': 'done',
+      '待审批': 'current',
+      '已驳回': 'rejected', '退回': 'rejected'
+    };
+    i.approval_records.forEach(function(r){
+      var stateClass = flowNodeStates[r.result] || '';
+      var statusTag = r.result==='通过'||r.result==='已通过' ? '<span class="tag tag-green">已通过</span>' :
+                      r.result==='已驳回'||r.result==='退回' ? '<span class="tag tag-red">已退回</span>' :
+                      r.result==='待审批' ? '<span class="tag tag-orange">审批中</span>' : '';
+      var infoHtml = '';
+      if (r.approver) infoHtml += '<span>审批人：'+r.approver+'</span>';
+      if (r.approval_time) infoHtml += '<span>审批时间：'+r.approval_time+'</span>';
+      timelineHtml += '<div class="flow-node '+stateClass+'">'+
+        '<div class="flow-node-content">'+
+          '<div class="flow-node-header"><span class="node-name">'+r.node_name+'</span>'+statusTag+'</div>'+
+          (infoHtml?'<div class="flow-node-info">'+infoHtml+'</div>':'')+
+          (r.opinion?'<div class="flow-node-opinion">'+r.opinion+'</div>':'')+
+        '</div>'+
+      '</div>';
+    });
+  }
+  document.getElementById('detailFlowTimeline').innerHTML = timelineHtml;
 }
 
 function backToList() { document.getElementById('detailView').style.display='none'; document.getElementById('listView').style.display=''; currentDetail=null; }
@@ -460,7 +510,7 @@ function endIntention(id) {
 // ============ EXPORT ============
 function exportIntentionList() {
   var now = new Date().toISOString().slice(0,10);
-  var header = '\uFEFF委托编号,委托单位,联系人,检验类别,报告类型,折扣前总价,优惠后总价,委托单状态,创建日期';
+  var header = '\uFEFF委托编号,委托单位,检验类别,样品数,折扣前总价,优惠后总价,委托单状态,关联合同,创建日期';
   var rows = [];
   document.querySelectorAll('#tableBody tr:not([style*="display: none"])').forEach(function(row) {
     var cells = row.querySelectorAll('td');

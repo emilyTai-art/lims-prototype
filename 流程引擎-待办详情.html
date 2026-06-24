@@ -51,13 +51,24 @@
   .info-item .label { color: #888; margin-right: 4px; }
   .info-item .value { color: #333; }
   .info-item .value.price { color: #cf1322; font-weight: 600; }
-  .flow-timeline { padding-left: 8px; }
-  .flow-node { display: flex; gap: 12px; padding: 10px 0; border-left: 2px solid #f0f0f0; padding-left: 16px; position: relative; }
-  .flow-node::before { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 50%; left: -6px; top: 14px; background: #d9d9d9; }
+  .flow-timeline { padding: 0; }
+  .flow-node { display: flex; gap: 14px; padding: 12px 0; border-left: 2px solid #f0f0f0; padding-left: 20px; position: relative; }
+  .flow-node:last-child { border-left-color: transparent; }
+  .flow-node::before { content: ''; position: absolute; width: 12px; height: 12px; border-radius: 50%; left: -7px; top: 15px; background: #d9d9d9; }
+  .flow-node.done { border-left-color: #52c41a; }
   .flow-node.done::before { background: #52c41a; }
-  .flow-node.current::before { background: #1890ff; box-shadow: 0 0 0 3px rgba(24,144,255,.2); }
+  .flow-node.current { border-left-color: #1890ff; }
+  .flow-node.current::before { background: #1890ff; box-shadow: 0 0 0 4px rgba(24,144,255,.2); }
+  .flow-node.rejected { border-left-color: #ff4d4f; }
+  .flow-node.rejected::before { background: #ff4d4f; }
   .flow-node-content { flex: 1; }
-  .flow-node-title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .flow-node-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .flow-node-header .node-name { font-size: 14px; font-weight: 600; }
+  .flow-node-info { font-size: 12px; color: #888; line-height: 1.6; }
+  .flow-node-info span { margin-right: 16px; }
+  .flow-node-opinion { font-size: 12px; color: #666; background: #fafafa; padding: 6px 10px; border-radius: 4px; margin-top: 6px; line-height: 1.5; }
+  .flow-node-opinion::before { content: '“'; color: #d9d9d9; }
+  .flow-node-opinion::after { content: '”'; color: #d9d9d9; }
   .flow-node-desc { font-size: 12px; color: #888; }
   .form-group { margin-bottom: 14px; }
   .form-group label { display: block; font-size: 13px; color: #333; margin-bottom: 4px; font-weight: 500; }
@@ -132,20 +143,20 @@
 
       <!-- Node type selector (demo toggle) -->
       <div class="node-type-selector">
-        <a href="流程引擎-待办详情-评审会签.html" class="node-chip active">评审会签</a>
+        <a href="流程引擎-待办详情-委托单审批.html" class="node-chip active">实验室评审</a>
         <a href="流程引擎-待办详情-合同审批.html" class="node-chip">合同审批</a>
         <a href="流程引擎-待办详情-客户确认.html" class="node-chip">客户确认</a>
         <a href="流程引擎-待办详情-合同盖章.html" class="node-chip">合同盖章</a>
         <a href="流程引擎-待办详情-归档.html" class="node-chip">归档</a>
       </div>
 
-      <!-- ==================== 评审会签 Panel ==================== -->
+      <!-- ==================== 实验室评审 Panel ==================== -->
       <div class="node-panel active" id="panel-review">
         <div class="card">
-          <div class="card-title">📋 评审会签 <span class="tag tag-orange" style="margin-left:8px">需处理</span></div>
+          <div class="card-title">📋 实验室评审 <span class="tag tag-orange" style="margin-left:8px">需处理</span></div>
           <div class="card-body">
             <div class="alert alert-info"><strong>节点说明：</strong>多人并行会签，请逐项核查检测项目是否在公司检测能力范围内。全部会签通过后进入阶段二。</div>
-            <div class="info-grid" style="margin-bottom:16px"><div class="info-item"><span class="label">合同编号：</span><span class="value">HT202606002</span></div><div class="info-item"><span class="label">委托单位：</span><span class="value">华润置地有限公司</span></div><div class="info-item"><span class="label">合同金额：</span><span class="value price">¥22,500.00</span></div><div class="info-item"><span class="label">会签节点：</span><span class="value"><span class="tag tag-blue">阶段一：评审会签</span></span></div><div class="info-item"><span class="label">到达时间：</span><span class="value">2026-06-22 09:30</span></div><div class="info-item"><span class="label">会签进度：</span><span class="value">1/3 人已通过</span></div></div>
+            <div class="info-grid" style="margin-bottom:16px"><div class="info-item"><span class="label">委托单编号：</span><span class="value">ITN202606005</span></div><div class="info-item"><span class="label">委托单位：</span><span class="value">华润置地有限公司</span></div><div class="info-item"><span class="label">委托总价：</span><span class="value price">¥22,500.00</span></div><div class="info-item"><span class="label">会签节点：</span><span class="value"><span class="tag tag-blue">委托单审批-实验室评审</span></span></div><div class="info-item"><span class="label">到达时间：</span><span class="value">2026-06-22 09:30</span></div><div class="info-item"><span class="label">会签进度：</span><span class="value">1/3 人已通过</span></div></div>
             <div class="alert alert-warning" style="margin-bottom:16px">已有 <strong>王五</strong> 会签通过。当前待处理人：<strong>张三（您）、赵六</strong></div>
 
             <h4 style="font-size:13px;margin-bottom:8px">检测项目明细（共 3 项）</h4>
@@ -192,7 +203,7 @@
                 <tr><td>开票类型</td><td>专票</td></tr>
                 <tr><td>检测项目数量</td><td>5项</td></tr>
                 <tr><td>折扣前总价</td><td>¥20,500.00</td></tr>
-                <tr><td>折扣后总价</td><td style="color:#cf1322;font-weight:600">¥18,300.00</td></tr>
+                <tr><td>优惠后总价</td><td style="color:#cf1322;font-weight:600">¥18,300.00</td></tr>
               </tbody>
             </table>
 
@@ -284,11 +295,11 @@
         <div class="card-title">流程进度</div>
         <div class="card-body">
           <div class="flow-timeline">
-            <div class="flow-node done"><div class="flow-node-content"><div class="flow-node-title">阶段一：评审会签 <span class="tag tag-green" style="margin-left:6px">已通过</span></div><div class="flow-node-desc">王五、赵六 已会签确认</div></div></div>
-            <div class="flow-node done"><div class="flow-node-content"><div class="flow-node-title">阶段二-1：合同审批 <span class="tag tag-green" style="margin-left:6px">已通过</span></div><div class="flow-node-desc">内勤负责人→部门主任→财务负责人→总经理 已逐级审批</div></div></div>
-            <div class="flow-node done"><div class="flow-node-content"><div class="flow-node-title">阶段二-2：客户确认 <span class="tag tag-green" style="margin-left:6px">已确认</span></div></div></div>
-            <div class="flow-node done"><div class="flow-node-content"><div class="flow-node-title">阶段二-3：合同盖章 <span class="tag tag-green" style="margin-left:6px">双方已盖章</span></div></div></div>
-            <div class="flow-node current"><div class="flow-node-content"><div class="flow-node-title">阶段二-4：归档 <span class="tag tag-blue" style="margin-left:6px">待处理</span></div></div></div>
+            <div class="flow-node done"><div class="flow-node-content"><div class="flow-node-header"><span class="node-name">委托单审批：已通过</span><span class="tag tag-green">已通过</span></div><div class="flow-node-info"><span>王五、赵六 已会签确认</span></div></div></div>
+            <div class="flow-node done"><div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-1：合同审批</span><span class="tag tag-green">已通过</span></div><div class="flow-node-info"><span>内勤负责人→部门主任→财务负责人→总经理 已逐级审批</span></div></div></div>
+            <div class="flow-node done"><div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-2：客户确认</span><span class="tag tag-green">已确认</span></div></div></div>
+            <div class="flow-node done"><div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-3：合同盖章</span><span class="tag tag-green">双方已盖章</span></div></div></div>
+            <div class="flow-node current"><div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-4：归档</span><span class="tag tag-blue">待处理</span></div></div></div>
           </div>
         </div>
       </div>
@@ -304,7 +315,7 @@ function switchNode(el, type) {
   document.getElementById('panel-'+type).classList.add('active');
 }
 function handleSubmit(type, action) {
-  const titles = { review:'评审会签', approval:'合同审批', customer:'客户确认', sign:'合同盖章', archive:'归档' };
+  const titles = { review:'实验室评审', approval:'合同审批', customer:'客户确认', sign:'合同盖章', archive:'归档' };
   const actions = { pass:'通过', reject:'退回', confirm:'确认', void:'作废', complete:'完成' };
   alert(titles[type] + ' 处理结果：' + (actions[action] || action) + '\n\n页面将返回待办列表。');
   window.location.href = '流程引擎-待办列表.html';

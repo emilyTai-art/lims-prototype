@@ -515,6 +515,8 @@ function saveIntention() {
   sampleRows.forEach(function(r){ r.items.forEach(function(it){ totalPrice += (it.unit_price||0)*(r.sample_qty||1); }); });
   var discountVal = parseFloat(document.getElementById('formDiscountAmount').value);
   var finalPrice = (discountVal>0 && discountVal<totalPrice) ? discountVal : totalPrice;
+  var mailAddress = document.getElementById('formMailAddress').value;
+  var witness = document.getElementById('formWitness').value;
   if (editingId) {
     alert('委托单 '+editingId+' 保存成功！');
   } else {

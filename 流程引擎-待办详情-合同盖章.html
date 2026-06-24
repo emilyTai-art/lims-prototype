@@ -70,8 +70,9 @@
   .alert-success { background: #f6ffed; border: 1px solid #b7eb8f; color: #389e0d; }
   .confirm-btns { display: flex; gap: 12px; margin-top: 16px; }
 
-  .flow-timeline { padding-left: 4px; }
+  .flow-timeline { padding: 0; }
   .flow-node { display: flex; gap: 14px; padding: 12px 0; border-left: 2px solid #f0f0f0; padding-left: 20px; position: relative; }
+  .flow-node:last-child { border-left-color: transparent; }
   .flow-node::before { content: ''; position: absolute; width: 12px; height: 12px; border-radius: 50%; left: -7px; top: 15px; background: #d9d9d9; }
   .flow-node.done { border-left-color: #52c41a; }
   .flow-node.done::before { background: #52c41a; }
@@ -80,7 +81,13 @@
   .flow-node.rejected { border-left-color: #ff4d4f; }
   .flow-node.rejected::before { background: #ff4d4f; }
   .flow-node-content { flex: 1; }
-  .flow-node-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .flow-node-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .flow-node-header .node-name { font-size: 14px; font-weight: 600; }
+  .flow-node-info { font-size: 12px; color: #888; line-height: 1.6; }
+  .flow-node-info span { margin-right: 16px; }
+  .flow-node-opinion { font-size: 12px; color: #666; background: #fafafa; padding: 6px 10px; border-radius: 4px; margin-top: 6px; line-height: 1.5; }
+  .flow-node-opinion::before { content: '“'; color: #d9d9d9; }
+  .flow-node-opinion::after { content: '”'; color: #d9d9d9; }
   .flow-node-desc { font-size: 12px; color: #888; }
 
   .sign-status-bar { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; gap: 0; }
@@ -130,7 +137,7 @@
         <div class="card-title">📋 合同盖章</div>
         <div class="card-body">
           <div class="alert alert-info"><strong>节点说明：</strong>客户已签字确认合同。请跟踪双方盖章进度并完成流转。合同盖章完成后可进入归档环节。</div>
-          <div class="alert alert-success">审批进度：评审会签 ✓ → 合同审批（4级） ✓ → 客户确认 ✓ → <strong style="color:#1890ff;">合同盖章 ← 当前节点</strong></div>
+          <div class="alert alert-success">审批进度：委托单审批 ✓ → 合同审批（4级） ✓ → 客户确认 ✓ → <strong style="color:#1890ff;">合同盖章 ← 当前节点</strong></div>
         </div>
       </div>
 
@@ -204,19 +211,19 @@
         <div class="card-body">
           <div class="flow-timeline">
             <div class="flow-node done">
-              <div class="flow-node-content"><div class="flow-node-title">阶段一：评审会签 <span class="tag tag-green" style="margin-left:6px">已通过</span></div></div>
+              <div class="flow-node-content"><div class="flow-node-header"><span class="node-name">委托单审批：已通过</span><span class="tag tag-green">已通过</span></div></div>
             </div>
             <div class="flow-node done">
-              <div class="flow-node-content"><div class="flow-node-title">阶段二-1：合同审批 <span class="tag tag-green" style="margin-left:6px">已通过</span></div><div class="flow-node-desc">内勤负责人→部门主任→财务负责人→总经理 已逐级审批</div></div>
+              <div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-1：合同审批</span><span class="tag tag-green">已通过</span></div><div class="flow-node-info"><span>内勤负责人→部门主任→财务负责人→总经理 已逐级审批</span></div></div>
             </div>
             <div class="flow-node done">
-              <div class="flow-node-content"><div class="flow-node-title">阶段二-2：客户确认 <span class="tag tag-green" style="margin-left:6px">已确认</span></div><div class="flow-node-desc">中粮集团 · 赵经理 已确认合同内容</div></div>
+              <div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-2：客户确认</span><span class="tag tag-green">已确认</span></div><div class="flow-node-info"><span>中粮集团 · 赵经理 已确认合同内容</span></div></div>
             </div>
             <div class="flow-node current">
-              <div class="flow-node-content"><div class="flow-node-title">阶段二-3：合同盖章 <span class="tag tag-blue" style="margin-left:6px">进行中</span></div><div class="flow-node-desc">我方已盖章，等待客户盖章</div></div>
+              <div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-3：合同盖章</span><span class="tag tag-blue">进行中</span></div><div class="flow-node-info"><span>我方已盖章，等待客户盖章</span></div></div>
             </div>
             <div class="flow-node">
-              <div class="flow-node-content"><div class="flow-node-title">阶段二-4：归档 <span class="tag tag-default" style="margin-left:6px">待处理</span></div></div>
+              <div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-4：归档</span><span class="tag tag-default">待处理</span></div></div>
             </div>
           </div>
         </div>

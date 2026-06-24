@@ -78,8 +78,9 @@
   .sample-block { margin-bottom: 14px; }
   .sample-block-header { font-size: 13px; font-weight: 600; margin-bottom: 8px; padding: 8px 12px; background: #fafafa; border-radius: 4px; display: flex; align-items: center; gap: 8px; color: #333; }
 
-  .flow-timeline { padding-left: 4px; }
+  .flow-timeline { padding: 0; }
   .flow-node { display: flex; gap: 14px; padding: 12px 0; border-left: 2px solid #f0f0f0; padding-left: 20px; position: relative; }
+  .flow-node:last-child { border-left-color: transparent; }
   .flow-node::before { content: ''; position: absolute; width: 12px; height: 12px; border-radius: 50%; left: -7px; top: 15px; background: #d9d9d9; }
   .flow-node.done { border-left-color: #52c41a; }
   .flow-node.done::before { background: #52c41a; }
@@ -88,7 +89,13 @@
   .flow-node.rejected { border-left-color: #ff4d4f; }
   .flow-node.rejected::before { background: #ff4d4f; }
   .flow-node-content { flex: 1; }
-  .flow-node-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .flow-node-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .flow-node-header .node-name { font-size: 14px; font-weight: 600; }
+  .flow-node-info { font-size: 12px; color: #888; line-height: 1.6; }
+  .flow-node-info span { margin-right: 16px; }
+  .flow-node-opinion { font-size: 12px; color: #666; background: #fafafa; padding: 6px 10px; border-radius: 4px; margin-top: 6px; line-height: 1.5; }
+  .flow-node-opinion::before { content: '“'; color: #d9d9d9; }
+  .flow-node-opinion::after { content: '”'; color: #d9d9d9; }
   .flow-node-desc { font-size: 12px; color: #888; }
 
   .approval-level { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; gap: 16px; }
@@ -136,7 +143,7 @@
         <div class="card-title">📋 合同审批</div>
         <div class="card-body">
           <div class="alert alert-info"><strong>节点说明：</strong>合同需经4级逐级审批。请核对合同基本信息、委托单检测项目、开票抬头及合同金额无误后审批。</div>
-          <div class="alert alert-warning">当前审批层级：<strong>内勤负责人（您）</strong> &nbsp; 评审会签已全部通过 ✓</div>
+          <div class="alert alert-warning">当前审批层级：<strong>内勤负责人（您）</strong> &nbsp; 委托单审批已全部通过 ✓</div>
         </div>
       </div>
 
@@ -159,7 +166,7 @@
           <div style="margin-top:16px;font-size:13px;font-weight:600;margin-bottom:8px;">审批层级</div>
           <div class="approval-level">
             <div class="order done">✓</div>
-            <div class="approval-level-info"><div class="approval-level-name">评审会签</div><div class="approval-level-status">全部通过 • 2026-06-21</div></div>
+            <div class="approval-level-info"><div class="approval-level-name">委托单审批</div><div class="approval-level-status">全部通过 • 2026-06-21</div></div>
           </div>
           <div class="approval-level">
             <div class="order current">1</div>
@@ -223,19 +230,19 @@
         <div class="card-body">
           <div class="flow-timeline">
             <div class="flow-node done">
-              <div class="flow-node-content"><div class="flow-node-title">阶段一：评审会签 <span class="tag tag-green" style="margin-left:6px">已通过</span></div></div>
+              <div class="flow-node-content"><div class="flow-node-header"><span class="node-name">委托单审批：已通过</span><span class="tag tag-green">已通过</span></div></div>
             </div>
             <div class="flow-node current">
-              <div class="flow-node-content"><div class="flow-node-title">阶段二-1：合同审批 <span class="tag tag-blue" style="margin-left:6px">进行中</span></div><div class="flow-node-desc">内勤负责人（您）→ 部门主任 → 财务负责人 → 总经理 逐级审批</div></div>
+              <div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-1：合同审批</span><span class="tag tag-blue">进行中</span></div><div class="flow-node-info"><span>内勤负责人（您）→ 部门主任 → 财务负责人 → 总经理 逐级审批</span></div></div>
             </div>
             <div class="flow-node">
-              <div class="flow-node-content"><div class="flow-node-title">阶段二-2：客户确认 <span class="tag tag-default" style="margin-left:6px">待处理</span></div></div>
+              <div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-2：客户确认</span><span class="tag tag-default">待处理</span></div></div>
             </div>
             <div class="flow-node">
-              <div class="flow-node-content"><div class="flow-node-title">阶段二-3：合同盖章 <span class="tag tag-default" style="margin-left:6px">待处理</span></div></div>
+              <div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-3：合同盖章</span><span class="tag tag-default">待处理</span></div></div>
             </div>
             <div class="flow-node">
-              <div class="flow-node-content"><div class="flow-node-title">阶段二-4：归档 <span class="tag tag-default" style="margin-left:6px">待处理</span></div></div>
+              <div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-4：归档</span><span class="tag tag-default">待处理</span></div></div>
             </div>
           </div>
         </div>
@@ -271,7 +278,7 @@ function renderEntrustDetail() {
     '<div class="info-item"><span class="label">检验类别：</span><span class="value">'+d.inspection_type+'</span></div>'+
     '<div class="info-item"><span class="label">报告类型：</span><span class="value">'+d.report_type+' / '+d.report_copies+'份</span></div>'+
     '<div class="info-item"><span class="label">委托单状态：</span><span class="value"><span class="tag tag-green">'+d.status+'</span></span></div>'+
-    '<div class="info-item"><span class="label">折扣后金额：</span><span class="value price">&yen;'+d.final_total.toLocaleString()+'</span></div>';
+    '<div class="info-item"><span class="label">优惠后总价：</span><span class="value price">&yen;'+d.final_total.toLocaleString()+'</span></div>';
 
   var container = document.getElementById('entrustSampleTables');
   var html = '';

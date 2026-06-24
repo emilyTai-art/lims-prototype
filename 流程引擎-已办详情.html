@@ -44,14 +44,24 @@
   .info-item .label { color: #888; margin-right: 4px; }
   .info-item .value { color: #333; }
   .info-item .value.price { color: #cf1322; font-weight: 600; }
-  .flow-timeline { padding-left: 8px; }
-  .flow-node { display: flex; gap: 12px; padding: 10px 0; border-left: 2px solid #f0f0f0; padding-left: 16px; position: relative; }
-  .flow-node::before { content: ''; position: absolute; width: 10px; height: 10px; border-radius: 50%; left: -6px; top: 14px; background: #d9d9d9; }
+  .flow-timeline { padding: 0; }
+  .flow-node { display: flex; gap: 14px; padding: 12px 0; border-left: 2px solid #f0f0f0; padding-left: 20px; position: relative; }
+  .flow-node:last-child { border-left-color: transparent; }
+  .flow-node::before { content: ''; position: absolute; width: 12px; height: 12px; border-radius: 50%; left: -7px; top: 15px; background: #d9d9d9; }
+  .flow-node.done { border-left-color: #52c41a; }
   .flow-node.done::before { background: #52c41a; }
-  .flow-node.current::before { background: #1890ff; }
+  .flow-node.current { border-left-color: #1890ff; }
+  .flow-node.current::before { background: #1890ff; box-shadow: 0 0 0 4px rgba(24,144,255,.2); }
+  .flow-node.rejected { border-left-color: #ff4d4f; }
   .flow-node.rejected::before { background: #ff4d4f; }
   .flow-node-content { flex: 1; }
-  .flow-node-title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .flow-node-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .flow-node-header .node-name { font-size: 14px; font-weight: 600; }
+  .flow-node-info { font-size: 12px; color: #888; line-height: 1.6; }
+  .flow-node-info span { margin-right: 16px; }
+  .flow-node-opinion { font-size: 12px; color: #666; background: #fafafa; padding: 6px 10px; border-radius: 4px; margin-top: 6px; line-height: 1.5; }
+  .flow-node-opinion::before { content: '“'; color: #d9d9d9; }
+  .flow-node-opinion::after { content: '”'; color: #d9d9d9; }
   .flow-node-desc { font-size: 12px; color: #888; }
   table.sub-table { width: 100%; border-collapse: collapse; font-size: 12px; }
   table.sub-table thead th { text-align: left; padding: 8px; background: #fafafa; color: #666; font-weight: 500; border-bottom: 1px solid #f0f0f0; }
@@ -104,8 +114,8 @@
 
       <!-- Node type selector (demo toggle) -->
       <div class="node-type-selector">
-        <div class="node-chip active" onclick="switchNode(this,'review-pass')">评审会签-通过</div>
-        <div class="node-chip" onclick="switchNode(this,'review-reject')">评审会签-退回</div>
+        <div class="node-chip active" onclick="switchNode(this,'review-pass')">实验室评审-通过</div>
+        <div class="node-chip" onclick="switchNode(this,'review-reject')">实验室评审-退回</div>
         <div class="node-chip" onclick="switchNode(this,'approval-pass')">合同审批-通过</div>
         <div class="node-chip" onclick="switchNode(this,'approval-reject')">合同审批-驳回</div>
         <div class="node-chip" onclick="switchNode(this,'customer-pass')">客户确认-已确认</div>
@@ -113,13 +123,13 @@
         <div class="node-chip" onclick="switchNode(this,'archive-pass')">归档-已完成</div>
       </div>
 
-      <!-- ==================== 评审会签-通过 ==================== -->
+      <!-- ==================== 实验室评审-通过 ==================== -->
       <div class="node-panel active" id="panel-review-pass">
         <div class="result-banner pass">
-          <div class="result-icon">✅</div><div><div class="result-text">会签通过</div><div class="result-detail">处理人：张三 &nbsp;|&nbsp; 处理时间：2026-06-20 14:30 &nbsp;|&nbsp; 耗时：1天3小时</div></div>
+          <div class="result-icon">✅</div><div><div class="result-text">评审通过</div><div class="result-detail">处理人：张三 &nbsp;|&nbsp; 处理时间：2026-06-20 14:30 &nbsp;|&nbsp; 耗时：1天3小时</div></div>
         </div>
-        <div class="card"><div class="card-title">📋 评审会签 - 处理详情</div><div class="card-body">
-          <div class="info-grid" style="margin-bottom:16px"><div class="info-item"><span class="label">合同编号：</span><span class="value">HT202606001</span></div><div class="info-item"><span class="label">委托单位：</span><span class="value">碧桂园控股有限公司</span></div><div class="info-item"><span class="label">合同金额：</span><span class="value price">¥15,000.00</span></div><div class="info-item"><span class="label">节点类型：</span><span class="value"><span class="tag tag-blue">阶段一：评审会签</span></span></div><div class="info-item"><span class="label">处理结果：</span><span class="value"><span class="tag tag-green">通过</span></span></div><div class="info-item"><span class="label">会签状态：</span><span class="value">全部通过（3/3）</span></div></div>
+        <div class="card"><div class="card-title">📋 实验室评审 - 处理详情</div><div class="card-body">
+          <div class="info-grid" style="margin-bottom:16px"><div class="info-item"><span class="label">委托单编号：</span><span class="value">ITN202606001</span></div><div class="info-item"><span class="label">委托单位：</span><span class="value">碧桂园控股有限公司</span></div><div class="info-item"><span class="label">委托总价：</span><span class="value price">¥15,000.00</span></div><div class="info-item"><span class="label">节点类型：</span><span class="value"><span class="tag tag-blue">委托单审批-实验室评审</span></span></div><div class="info-item"><span class="label">处理结果：</span><span class="value"><span class="tag tag-green">通过</span></span></div><div class="info-item"><span class="label">会签状态：</span><span class="value">全部通过（3/3）</span></div></div>
           <div class="form-group" style="margin-bottom:0"><label>处理意见</label><div style="background:#fafafa;padding:10px 14px;border-radius:4px;font-size:13px">检测项目均在能力范围内，同意通过</div></div>
           <h4 style="font-size:13px;margin:16px 0 8px">会签人列表</h4>
           <table class="sub-table"><thead><tr><th>会签人</th><th>结果</th><th>意见</th><th>时间</th></tr></thead><tbody>
@@ -130,13 +140,13 @@
         </div></div>
       </div>
 
-      <!-- ==================== 评审会签-退回 ==================== -->
+      <!-- ==================== 实验室评审-退回 ==================== -->
       <div class="node-panel" id="panel-review-reject">
         <div class="result-banner reject">
-          <div class="result-icon">❌</div><div><div class="result-text">会签退回</div><div class="result-detail">处理人：张三 &nbsp;|&nbsp; 处理时间：2026-06-19 16:00 &nbsp;|&nbsp; 合同已退回发起人</div></div>
+          <div class="result-icon">❌</div><div><div class="result-text">评审退回</div><div class="result-detail">处理人：张三 &nbsp;|&nbsp; 处理时间：2026-06-19 16:00 &nbsp;|&nbsp; 委托单已退回发起人</div></div>
         </div>
-        <div class="card"><div class="card-title">📋 评审会签 - 处理详情</div><div class="card-body">
-          <div class="info-grid" style="margin-bottom:16px"><div class="info-item"><span class="label">合同编号：</span><span class="value">HT202606012</span></div><div class="info-item"><span class="label">委托单位：</span><span class="value">融创中国</span></div><div class="info-item"><span class="label">合同金额：</span><span class="value price">¥25,000.00</span></div><div class="info-item"><span class="label">节点类型：</span><span class="value"><span class="tag tag-blue">阶段一：评审会签</span></span></div><div class="info-item"><span class="label">处理结果：</span><span class="value"><span class="tag tag-red">退回</span></span></div><div class="info-item"><span class="label">会签状态：</span><span class="value">已退回（退回发起人）</span></div></div>
+        <div class="card"><div class="card-title">📋 实验室评审 - 处理详情</div><div class="card-body">
+          <div class="info-grid" style="margin-bottom:16px"><div class="info-item"><span class="label">委托单编号：</span><span class="value">ITN202606012</span></div><div class="info-item"><span class="label">委托单位：</span><span class="value">融创中国</span></div><div class="info-item"><span class="label">委托总价：</span><span class="value price">¥25,000.00</span></div><div class="info-item"><span class="label">节点类型：</span><span class="value"><span class="tag tag-blue">委托单审批-实验室评审</span></span></div><div class="info-item"><span class="label">处理结果：</span><span class="value"><span class="tag tag-red">退回</span></span></div><div class="info-item"><span class="label">会签状态：</span><span class="value">已退回（退回发起人）</span></div></div>
           <div class="form-group" style="margin-bottom:0"><label>退回原因</label><div style="background:#fff1f0;padding:10px 14px;border-radius:4px;font-size:13px;color:#a8071a">检测项目"石棉含量"超出CMA资质范围，无法盖CMA章。建议客户调整检测范围或放弃该检测项。</div></div>
         </div></div>
       </div>
@@ -201,11 +211,11 @@
         <div class="card-title">流程进度</div>
         <div class="card-body">
           <div class="flow-timeline">
-            <div class="flow-node done"><div class="flow-node-content"><div class="flow-node-title">阶段一：评审会签 <span class="tag tag-green" style="margin-left:6px">已通过</span></div><div class="flow-node-desc">张三、王五、赵六 已会签确认</div></div></div>
-            <div class="flow-node done"><div class="flow-node-content"><div class="flow-node-title">阶段二-1：合同审批 <span class="tag tag-green" style="margin-left:6px">已通过</span></div><div class="flow-node-desc">内勤负责人→部门主任→财务负责人→总经理 已逐级审批</div></div></div>
-            <div class="flow-node done"><div class="flow-node-content"><div class="flow-node-title">阶段二-2：客户确认 <span class="tag tag-green" style="margin-left:6px">已确认</span></div></div></div>
-            <div class="flow-node done"><div class="flow-node-content"><div class="flow-node-title">阶段二-3：合同盖章 <span class="tag tag-green" style="margin-left:6px">双方已盖章</span></div></div></div>
-            <div class="flow-node done"><div class="flow-node-content"><div class="flow-node-title">阶段二-4：归档 <span class="tag tag-green" style="margin-left:6px">已归档 · 合同编号已生成</span></div></div></div>
+            <div class="flow-node done"><div class="flow-node-content"><div class="flow-node-header"><span class="node-name">委托单审批：已通过</span><span class="tag tag-green">已通过</span></div><div class="flow-node-info"><span>张三、王五、赵六 已会签确认</span></div></div></div>
+            <div class="flow-node done"><div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-1：合同审批</span><span class="tag tag-green">已通过</span></div><div class="flow-node-info"><span>内勤负责人→部门主任→财务负责人→总经理 已逐级审批</span></div></div></div>
+            <div class="flow-node done"><div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-2：客户确认</span><span class="tag tag-green">已确认</span></div></div></div>
+            <div class="flow-node done"><div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-3：合同盖章</span><span class="tag tag-green">双方已盖章</span></div></div></div>
+            <div class="flow-node done"><div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-4：归档</span><span class="tag tag-green">已归档 · 合同编号已生成</span></div></div></div>
           </div>
         </div>
       </div>

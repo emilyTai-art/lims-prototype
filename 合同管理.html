@@ -95,8 +95,9 @@
   .sample-block-header .sample-tag { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 3px; font-size: 11px; font-weight: 500; }
   .sample-block-header .sample-tag.grade { background: #e6f7ff; color: #1890ff; }
 
-  .flow-timeline { padding-left: 4px; }
+  .flow-timeline { padding: 0; }
   .flow-node { display: flex; gap: 14px; padding: 12px 0; border-left: 2px solid #f0f0f0; padding-left: 20px; position: relative; }
+  .flow-node:last-child { border-left-color: transparent; }
   .flow-node::before { content: ''; position: absolute; width: 12px; height: 12px; border-radius: 50%; left: -7px; top: 15px; background: #d9d9d9; }
   .flow-node.done { border-left-color: #52c41a; }
   .flow-node.done::before { background: #52c41a; }
@@ -105,18 +106,15 @@
   .flow-node.rejected { border-left-color: #ff4d4f; }
   .flow-node.rejected::before { background: #ff4d4f; }
   .flow-node-content { flex: 1; }
-  .flow-node-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
-  .flow-node-desc { font-size: 12px; color: #888; }
+  .flow-node-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .flow-node-header .node-name { font-size: 14px; font-weight: 600; }
+  .flow-node-info { font-size: 12px; color: #888; line-height: 1.6; }
+  .flow-node-info span { margin-right: 16px; }
+  .flow-node-opinion { font-size: 12px; color: #666; background: #fafafa; padding: 6px 10px; border-radius: 4px; margin-top: 6px; line-height: 1.5; }
+  .flow-node-opinion::before { content: '“'; color: #d9d9d9; }
+  .flow-node-opinion::after { content: '”'; color: #d9d9d9; }
   .flow-node-meta { font-size: 12px; color: #bbb; margin-top: 2px; }
-
-  .approval-steps-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  .approval-step-card { background: #fafafa; border: 1px solid #f0f0f0; border-radius: 6px; padding: 14px; text-align: center; }
-  .approval-step-card.pass { border-color: #b7eb8f; background: #f6ffed; }
-  .approval-step-card.reject { border-color: #ffa39e; background: #fff1f0; }
-  .approval-step-card.pending { border-color: #ffd591; background: #fff7e6; }
-  .approval-step-card .step-label { font-size: 11px; color: #999; margin-bottom: 6px; }
-  .approval-step-card .step-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
-  .approval-step-card .step-status { font-size: 12px; }
+  .flow-node-desc { font-size: 12px; color: #888; }
 
   .alert { padding: 10px 16px; border-radius: 4px; font-size: 13px; margin-bottom: 16px; }
   .alert-info { background: #e6f7ff; border: 1px solid #91d5ff; color: #0050b3; }
@@ -181,7 +179,7 @@
               </tr>
               <tr>
                 <td>HT202606001</td><td>WT202606003</td><td>碧桂园控股有限公司</td><td>15,000.00</td><td>双方协议</td>
-                <td><span class="tag tag-green">审批通过</span></td><td>已完成</td><td>2026-06-18</td>
+                <td><span class="tag tag-green">审批通过</span></td><td>已归档</td><td>2026-06-18</td>
                 <td><button class="btn btn-ghost btn-sm" onclick="openDetailDrawer(1)">详情</button></td>
               </tr>
               <tr>
@@ -262,79 +260,55 @@
       <div class="info-section">
         <div class="info-section-header"><span class="section-num">四</span>审批流程</div>
         <div class="info-section-body">
-          <div class="approval-steps-grid" style="margin-bottom:20px;">
-            <div class="approval-step-card pass">
-              <div class="step-label">STEP 1</div>
-              <div class="step-title">评审会签</div>
-              <div class="step-status" style="color:#52c41a;font-weight:600;">已通过</div>
-            </div>
-            <div class="approval-step-card pass">
-              <div class="step-label">STEP 2</div>
-              <div class="step-title">合同审批</div>
-              <div class="step-status" style="color:#52c41a;font-weight:600;">已通过</div>
-            </div>
-            <div class="approval-step-card pending">
-              <div class="step-label">STEP 3</div>
-              <div class="step-title">客户确认</div>
-              <div class="step-status" style="color:#fa8c16;font-weight:600;">进行中</div>
-            </div>
-            <div class="approval-step-card">
-              <div class="step-label">STEP 4</div>
-              <div class="step-title">盖章归档</div>
-              <div class="step-status" style="color:#999;">待处理</div>
-            </div>
-          </div>
           <div class="flow-timeline">
             <div class="flow-node done">
               <div class="flow-node-content">
-                <div class="flow-node-title">评审会签 <span class="tag tag-green" style="margin-left:8px">已通过</span></div>
-                <div class="flow-node-desc">张三、王五、赵六 已会签确认检测能力可承接</div>
-                <div class="flow-node-meta">06-20 14:30 ~ 15:45</div>
+                <div class="flow-node-header"><span class="node-name">合同审批-内勤负责人</span><span class="tag tag-green">已通过</span></div>
+                <div class="flow-node-info"><span>审批人：李婷</span><span>审批时间：06-20 16:00</span></div>
+                <div class="flow-node-opinion">内容无误</div>
               </div>
             </div>
             <div class="flow-node done">
               <div class="flow-node-content">
-                <div class="flow-node-title">合同审批（4级审批） <span class="tag tag-green" style="margin-left:8px">已通过</span></div>
-                <div class="flow-node-desc">内勤负责人→部门主任→财务负责人→总经理 已逐级审批通过</div>
-                <div class="flow-node-meta">06-20 16:00 ~ 06-21 11:00</div>
+                <div class="flow-node-header"><span class="node-name">合同审批-部门主任</span><span class="tag tag-green">已通过</span></div>
+                <div class="flow-node-info"><span>审批人：王总</span><span>审批时间：06-21 09:15</span></div>
+                <div class="flow-node-opinion">同意</div>
+              </div>
+            </div>
+            <div class="flow-node done">
+              <div class="flow-node-content">
+                <div class="flow-node-header"><span class="node-name">合同审批-财务负责人</span><span class="tag tag-green">已通过</span></div>
+                <div class="flow-node-info"><span>审批人：刘会计</span><span>审批时间：06-21 10:30</span></div>
+                <div class="flow-node-opinion">金额核对无误</div>
+              </div>
+            </div>
+            <div class="flow-node done">
+              <div class="flow-node-content">
+                <div class="flow-node-header"><span class="node-name">合同审批-总经理</span><span class="tag tag-green">已通过</span></div>
+                <div class="flow-node-info"><span>审批人：周总</span><span>审批时间：06-21 11:00</span></div>
+                <div class="flow-node-opinion">批准</div>
               </div>
             </div>
             <div class="flow-node current">
               <div class="flow-node-content">
-                <div class="flow-node-title">客户确认 <span class="tag tag-blue" style="margin-left:8px">进行中</span></div>
-                <div class="flow-node-desc">已导出合同发送客户，等待客户方代表 陈经理 确认</div>
+                <div class="flow-node-header"><span class="node-name">客户确认</span><span class="tag tag-blue">进行中</span></div>
+                <div class="flow-node-info"><span>等待：客户方代表 陈经理 确认</span></div>
                 <div class="flow-node-meta">06-21 11:30 发起</div>
               </div>
             </div>
             <div class="flow-node">
               <div class="flow-node-content">
-                <div class="flow-node-title">合同盖章 <span class="tag tag-default" style="margin-left:8px">待处理</span></div>
+                <div class="flow-node-header"><span class="node-name">合同盖章</span><span class="tag tag-default">待处理</span></div>
                 <div class="flow-node-desc">客户确认通过后自动触发</div>
               </div>
             </div>
             <div class="flow-node">
               <div class="flow-node-content">
-                <div class="flow-node-title">归档 <span class="tag tag-default" style="margin-left:8px">待处理</span></div>
+                <div class="flow-node-header"><span class="node-name">归档</span><span class="tag tag-default">待处理</span></div>
                 <div class="flow-node-desc">盖章完成后自动触发归档流程</div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- ====== 五、审批记录 ====== -->
-      <div class="info-section">
-        <div class="info-section-header"><span class="section-num">五</span>审批记录</div>
-        <div class="info-section-body">
-          <table style="font-size:12px"><thead><tr><th>节点</th><th>审批人</th><th>结果</th><th>意见</th><th>时间</th></tr></thead><tbody>
-            <tr><td>评审会签</td><td>张三（实验室）</td><td><span class="tag tag-green">通过</span></td><td>检测能力可承接</td><td>06-20 14:30</td></tr>
-            <tr><td>评审会签</td><td>王五（实验室）</td><td><span class="tag tag-green">通过</span></td><td>同意</td><td>06-20 15:10</td></tr>
-            <tr><td>评审会签</td><td>赵六（实验室）</td><td><span class="tag tag-green">通过</span></td><td>—</td><td>06-20 15:45</td></tr>
-            <tr><td>合同审批-内勤负责人</td><td>李婷</td><td><span class="tag tag-green">通过</span></td><td>内容无误</td><td>06-20 16:00</td></tr>
-            <tr><td>合同审批-主任</td><td>王总</td><td><span class="tag tag-green">通过</span></td><td>同意</td><td>06-21 09:15</td></tr>
-            <tr><td>合同审批-财务</td><td>刘会计</td><td><span class="tag tag-green">通过</span></td><td>金额核对无误</td><td>06-21 10:30</td></tr>
-            <tr><td>合同审批-总经理</td><td>周总</td><td><span class="tag tag-green">通过</span></td><td>批准</td><td>06-21 11:00</td></tr>
-          </tbody></table>
         </div>
       </div>
     </div>
@@ -362,7 +336,7 @@ const contractDetails = [
   },
   { // 1 - approved
     contractNo:'HT202606001', orderNo:'WT202606003', status:'审批通过', customer:'碧桂园控股有限公司', contact:'李总 / 13900139002',
-    amount:'¥15,000.00', createTime:'2026-06-18', node:'已完成',
+    amount:'¥15,000.00', createTime:'2026-06-18', node:'已归档',
     inspectionType:'委托抽检', reportType:'实测数据 / 3份',
     sampleRows:[{
       sample_name:'室内空气样品', producer:'', sample_grade:'', sample_qty:3,

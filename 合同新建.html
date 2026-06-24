@@ -135,7 +135,7 @@
             <div class="form-group">
               <label>选择委托单</label>
               <select id="entrustOrder" onchange="onEntrustChange(this.value)">
-                <option value="">-- 请选择已完成的委托单 --</option>
+                <option value="">-- 请选择审批通过的委托单 --</option>
               </select>
             </div>
           </div>
@@ -189,7 +189,7 @@
           </table>
           <div class="invoice-summary" id="invoiceSummary">
             <span>开票总金额</span>
-            <span>委托单折扣后金额：<strong id="invoiceTarget">¥0.00</strong> &nbsp;|&nbsp; 抬头合计：<strong id="invoiceTotal" class="total">¥0.00</strong></span>
+            <span>委托单优惠后金额：<strong id="invoiceTarget">¥0.00</strong> &nbsp;|&nbsp; 抬头合计：<strong id="invoiceTotal" class="total">¥0.00</strong></span>
           </div>
         </div>
       </div>
@@ -223,7 +223,7 @@ const mockEntrustOrders = [
   { id:'WT202606001', customer:'中铁建设集团有限公司', contact:'张经理', phone:'13800138001',
     inspection_type:'委托检验', report_type:'判定', report_copies:2,
     original_total: 9600, discount: 0.90, final_total: 8640,
-    status:'已完成',
+    status:'审批通过',
     sampleRows: [{
       sample_name:'塑胶跑道面层', producer:'江苏某体育设施公司', sender:'张工', sample_status:'正常',
       sample_grade:'优等品', sample_qty:2,
@@ -239,7 +239,7 @@ const mockEntrustOrders = [
   { id:'WT202606002', customer:'碧桂园控股有限公司', contact:'李总', phone:'13900139002',
     inspection_type:'委托抽检', report_type:'实测数据', report_copies:3,
     original_total: 18000, discount: 0.85, final_total: 15300,
-    status:'已完成',
+    status:'审批通过',
     sampleRows: [{
       sample_name:'室内空气样品', producer:'', sender:'李工', sample_status:'正常',
       sample_grade:'', sample_qty:3,
@@ -254,7 +254,7 @@ const mockEntrustOrders = [
   { id:'WT202606003', customer:'华润置地有限公司', contact:'王工', phone:'13700137003',
     inspection_type:'定期检验', report_type:'判定', report_copies:2,
     original_total: 25000, discount: 0.90, final_total: 22500,
-    status:'已完成',
+    status:'审批通过',
     sampleRows: [{
       sample_name:'室内空气样品', producer:'', sender:'王工', sample_status:'正常',
       sample_grade:'', sample_qty:1,
@@ -268,7 +268,7 @@ const mockEntrustOrders = [
   { id:'WT202606004', customer:'保利发展控股集团', contact:'赵总', phone:'13600136004',
     inspection_type:'委托检验', report_type:'判定', report_copies:1,
     original_total: 15000, discount: 0.88, final_total: 13200,
-    status:'已完成',
+    status:'审批通过',
     sampleRows: [{
       sample_name:'建筑保温材料', producer:'河北某建材公司', sender:'赵工', sample_status:'正常',
       sample_grade:'A级', sample_qty:1,
@@ -282,7 +282,7 @@ const mockEntrustOrders = [
   { id:'WT202606005', customer:'万科企业股份有限公司', contact:'陈经理', phone:'13500135005',
     inspection_type:'委托抽检', report_type:'实测数据', report_copies:2,
     original_total: 6200, discount: 0.95, final_total: 5890,
-    status:'已完成',
+    status:'审批通过',
     sampleRows: [{
       sample_name:'生活饮用水', producer:'', sender:'陈工', sample_status:'正常',
       sample_grade:'', sample_qty:1,
@@ -302,7 +302,7 @@ function init() {
   // Populate entrust order dropdown
   const sel = document.getElementById('entrustOrder');
   mockEntrustOrders.forEach(o => {
-    sel.innerHTML += `<option value="${o.id}">${o.id} — ${o.customer}（折扣后 ¥${o.final_total.toLocaleString()}）</option>`;
+    sel.innerHTML += `<option value="${o.id}">${o.id} — ${o.customer}（优惠后 ¥${o.final_total.toLocaleString()}）</option>`;
   });
   renderInvoiceTable();
 }
@@ -369,9 +369,9 @@ function onEntrustChange(orderId) {
     <div class="info-item"><span class="label">检验类别：</span><span class="value">${order.inspection_type}</span></div>
     <div class="info-item"><span class="label">报告类型：</span><span class="value">${order.report_type} / ${order.report_copies}份</span></div>
     <div class="info-item"><span class="label">状态：</span><span class="value"><span class="tag tag-green">${order.status}</span></span></div>
-    <div class="info-item"><span class="label">折前总价：</span><span class="value">¥${order.original_total.toLocaleString()}</span></div>
-    <div class="info-item"><span class="label">折扣：</span><span class="value" style="color:#fa8c16;">${(order.discount*100).toFixed(0)}%</span></div>
-    <div class="info-item"><span class="label">折扣后金额：</span><span class="value" style="color:#cf1322;font-weight:600;">¥${order.final_total.toLocaleString()}</span></div>
+    <div class="info-item"><span class="label">折扣前总价：</span><span class="value">¥${order.original_total.toLocaleString()}</span></div>
+    <div class="info-item"><span class="label">优惠：</span><span class="value" style="color:#fa8c16;">${(order.discount*100).toFixed(0)}%</span></div>
+    <div class="info-item"><span class="label">优惠后总价：</span><span class="value" style="color:#cf1322;font-weight:600;">¥${order.final_total.toLocaleString()}</span></div>
   `;
 
   // Render sample sub-tables

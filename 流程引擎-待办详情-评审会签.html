@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>评审会签 - LIMS 流程引擎</title>
+<title>实验室评审 - LIMS 流程引擎</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: #f0f2f5; color: #333; }
@@ -78,8 +78,9 @@
   .sample-block { margin-bottom: 14px; }
   .sample-block-header { font-size: 13px; font-weight: 600; margin-bottom: 8px; padding: 8px 12px; background: #fafafa; border-radius: 4px; display: flex; align-items: center; gap: 8px; color: #333; }
 
-  .flow-timeline { padding-left: 4px; }
+  .flow-timeline { padding: 0; }
   .flow-node { display: flex; gap: 14px; padding: 12px 0; border-left: 2px solid #f0f0f0; padding-left: 20px; position: relative; }
+  .flow-node:last-child { border-left-color: transparent; }
   .flow-node::before { content: ''; position: absolute; width: 12px; height: 12px; border-radius: 50%; left: -7px; top: 15px; background: #d9d9d9; }
   .flow-node.done { border-left-color: #52c41a; }
   .flow-node.done::before { background: #52c41a; }
@@ -88,7 +89,13 @@
   .flow-node.rejected { border-left-color: #ff4d4f; }
   .flow-node.rejected::before { background: #ff4d4f; }
   .flow-node-content { flex: 1; }
-  .flow-node-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .flow-node-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .flow-node-header .node-name { font-size: 14px; font-weight: 600; }
+  .flow-node-info { font-size: 12px; color: #888; line-height: 1.6; }
+  .flow-node-info span { margin-right: 16px; }
+  .flow-node-opinion { font-size: 12px; color: #666; background: #fafafa; padding: 6px 10px; border-radius: 4px; margin-top: 6px; line-height: 1.5; }
+  .flow-node-opinion::before { content: '“'; color: #d9d9d9; }
+  .flow-node-opinion::after { content: '”'; color: #d9d9d9; }
   .flow-node-desc { font-size: 12px; color: #888; }
 
   .verify-select { height: 30px; padding: 0 8px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 12px; outline: none; width: 100px; }
@@ -125,12 +132,12 @@
   <div class="main">
     <div class="topbar"><span>流程引擎</span><span>实验室 · 张三</span></div>
     <div class="content">
-      <div class="breadcrumb"><a href="#">首页</a> &gt; <a href="流程引擎-待办列表.html">待办任务</a> &gt; <span>评审会签</span></div>
-      <div class="page-header"><h2>评审会签</h2><a href="流程引擎-待办列表.html" class="btn">← 返回待办列表</a></div>
+      <div class="breadcrumb"><a href="#">首页</a> &gt; <a href="流程引擎-待办列表.html">待办任务</a> &gt; <span>实验室评审</span></div>
+      <div class="page-header"><h2>实验室评审</h2><a href="流程引擎-待办列表.html" class="btn">← 返回待办列表</a></div>
 
       <!-- ====== 节点说明 ====== -->
       <div class="card">
-        <div class="card-title">📋 评审会签</div>
+        <div class="card-title">📋 实验室评审</div>
         <div class="card-body">
           <div class="alert alert-info"><strong>节点说明：</strong>多人并行会签，请逐项核查检测项目是否在公司检测能力范围内。全部会签通过后进入阶段二。</div>
           <div class="alert alert-warning">已有 <strong>王五</strong> 会签通过。当前待处理人：<strong>张三（您）、赵六</strong> &nbsp; 会签进度：1/3</div>
@@ -142,9 +149,8 @@
         <div class="card-title">📋 合同基本信息</div>
         <div class="card-body">
           <div class="info-grid">
-            <div class="info-item"><span class="label">合同编号：</span><span class="value">HT202606002</span></div>
-            <div class="info-item"><span class="label">委托单编号：</span><span class="value">WT202606005</span></div>
-            <div class="info-item"><span class="label">合同状态：</span><span class="value"><span class="tag tag-blue">审批中</span></span></div>
+            <div class="info-item"><span class="label">委托单编号：</span><span class="value">ITN202606005</span></div>
+            <div class="info-item"><span class="label">委托单状态：</span><span class="value"><span class="tag tag-blue">审批中</span></span></div>
             <div class="info-item"><span class="label">委托单位：</span><span class="value">华润置地有限公司</span></div>
             <div class="info-item"><span class="label">委托单位联系人：</span><span class="value">陈经理 / 13500135005</span></div>
             <div class="info-item"><span class="label">合同金额：</span><span class="value price">¥22,500.00</span></div>
@@ -163,7 +169,7 @@
         </div>
       </div>
 
-      <!-- ====== 合同条款（评审会签不显示） ====== -->
+      <!-- ====== 合同条款（实验室评审不显示） ====== -->
       <div class="card" style="display:none;">
         <div class="card-title">📝 合同条款</div>
         <div class="card-body"><div class="info-grid"><div class="info-item"><span class="label">模板类型：</span><span class="value">三方检验检测协议书</span></div></div></div>
@@ -203,19 +209,19 @@
         <div class="card-body">
           <div class="flow-timeline">
             <div class="flow-node current">
-              <div class="flow-node-content"><div class="flow-node-title">阶段一：评审会签 <span class="tag tag-blue" style="margin-left:6px">进行中</span></div><div class="flow-node-desc">张三（您）、王五、赵六 并行会签，已通过 1/3</div></div>
+              <div class="flow-node-content"><div class="flow-node-header"><span class="node-name">委托单审批-实验室评审</span><span class="tag tag-blue">进行中</span></div><div class="flow-node-info"><span>张三（您）、王五、赵六 并行会签，已通过 1/3</span></div></div>
             </div>
             <div class="flow-node">
-              <div class="flow-node-content"><div class="flow-node-title">阶段二-1：合同审批 <span class="tag tag-default" style="margin-left:6px">待处理</span></div><div class="flow-node-desc">会签全部通过后进入合同逐级审批</div></div>
+              <div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-1：合同审批</span><span class="tag tag-default">待处理</span></div><div class="flow-node-info"><span>会签全部通过后进入合同逐级审批</span></div></div>
             </div>
             <div class="flow-node">
-              <div class="flow-node-content"><div class="flow-node-title">阶段二-2：客户确认 <span class="tag tag-default" style="margin-left:6px">待处理</span></div></div>
+              <div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-2：客户确认</span><span class="tag tag-default">待处理</span></div></div>
             </div>
             <div class="flow-node">
-              <div class="flow-node-content"><div class="flow-node-title">阶段二-3：合同盖章 <span class="tag tag-default" style="margin-left:6px">待处理</span></div></div>
+              <div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-3：合同盖章</span><span class="tag tag-default">待处理</span></div></div>
             </div>
             <div class="flow-node">
-              <div class="flow-node-content"><div class="flow-node-title">阶段二-4：归档 <span class="tag tag-default" style="margin-left:6px">待处理</span></div></div>
+              <div class="flow-node-content"><div class="flow-node-header"><span class="node-name">阶段二-4：归档</span><span class="tag tag-default">待处理</span></div></div>
             </div>
           </div>
         </div>
@@ -312,7 +318,7 @@ function updateVerify(rowIdx) {
   else { badge.className = 'verify-na'; badge.textContent = '待核查'; }
 }
 function handleSubmit(action) {
-  alert('评审会签结果：' + (action==='pass'?'已通过':'已退回') + '\n\n页面将返回待办列表。');
+  alert('实验室评审结果：' + (action==='pass'?'已通过':'已退回') + '\n\n页面将返回待办列表。');
   window.location.href = '流程引擎-待办列表.html';
 }
 </script>
