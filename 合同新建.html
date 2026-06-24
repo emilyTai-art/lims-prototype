@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新建合同 - LIMS 商务阶段</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: #f0f2f5; color: #333; }
+  .app { display: flex; min-height: 100vh; }
+
+  .sidebar { width: 220px; background: #001529; color: #fff; flex-shrink: 0; }
+  .sidebar .logo { padding: 20px; font-size: 18px; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,.1); letter-spacing: 1px; }
+  .sidebar .logo span { color: #1890ff; }
+  .sidebar .menu-group { padding: 8px 0; }
+  .sidebar .menu-group-title { padding: 12px 24px 4px; font-size: 12px; color: rgba(255,255,255,.45); text-transform: uppercase; }
+  .sidebar .menu-item { padding: 10px 24px; cursor: pointer; font-size: 14px; transition: all .2s; display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.65); text-decoration: none; }
+  .sidebar .menu-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+  .sidebar .menu-item.active { background: #1890ff; font-weight: 600; color: #fff; }
+  .sidebar .menu-item .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.5); }
+  .sidebar .menu-item.active .dot { background: #fff; }
+  .sidebar .menu-badge { margin-left: auto; background: #ff4d4f; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 10px; }
+
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { height: 48px; background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; padding: 0 24px; justify-content: space-between; font-size: 13px; color: #666; }
+  .content { flex: 1; padding: 24px; overflow-y: auto; }
+  .breadcrumb { font-size: 13px; color: #999; margin-bottom: 16px; }
+  .breadcrumb a { color: #1890ff; text-decoration: none; }
+  .breadcrumb span { color: #333; }
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .page-header h2 { font-size: 20px; font-weight: 600; }
+  .card { background: #fff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 20px; overflow: hidden; }
+  .card-header { background: #fafafa; padding: 12px 20px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: #333; }
+  .card-header .section-num { display: inline-flex; width: 22px; height: 22px; border-radius: 50%; background: #1890ff; color: #fff; font-size: 12px; font-weight: 700; align-items: center; justify-content: center; flex-shrink: 0; }
+  .card-body { padding: 20px; }
+
+  .btn { height: 32px; padding: 0 16px; border-radius: 4px; font-size: 13px; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; color: #333; display: inline-flex; align-items: center; gap: 6px; transition: all .2s; white-space: nowrap; }
+  .btn:hover { border-color: #1890ff; color: #1890ff; }
+  .btn:active { opacity: 0.85; transform: translateY(1px); }
+  .btn-primary { background: #1890ff; border-color: #1890ff; color: #fff; }
+  .btn-primary:hover { background: #40a9ff; border-color: #40a9ff; color: #fff; }
+  .btn-danger { color: #ff4d4f; }
+  .btn-danger:hover { border-color: #ff4d4f; color: #ff4d4f; }
+  .btn-sm { height: 26px; padding: 0 10px; font-size: 12px; }
+  .btn-xs { height: 22px; padding: 0 6px; font-size: 11px; }
+
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 13px; color: #333; margin-bottom: 4px; font-weight: 500; }
+  .form-group label .required { color: #ff4d4f; }
+  .form-group input, .form-group textarea, .form-group select { width: 100%; height: 34px; padding: 0 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; outline: none; }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,.15); }
+  .form-group .hint { font-size: 12px; color: #999; margin-top: 2px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  .info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px 20px; }
+  .info-item { font-size: 13px; }
+  .info-item .label { color: #888; margin-right: 4px; }
+  .info-item .value { color: #333; }
+
+  .tag { display: inline-block; padding: 1px 6px; border-radius: 2px; font-size: 11px; }
+  .tag-blue { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+  .tag-green { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+  .tag-orange { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
+
+  /* Invoice header table */
+  .invoice-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+  .invoice-table th, .invoice-table td { padding: 6px 4px; border: 1px solid #e8e8e8; vertical-align: top; }
+  .invoice-table th { background: #f5f5f5; font-weight: 500; color: #666; font-size: 11px; white-space: nowrap; }
+  .invoice-table td input, .invoice-table td select { height: 28px; font-size: 12px; border: 1px solid #d9d9d9; border-radius: 2px; padding: 0 6px; outline: none; width: 100%; }
+  .invoice-table td input:focus { border-color: #1890ff; }
+  .invoice-table .amount-cell { font-weight: 600; color: #cf1322; font-size: 13px; text-align: right; padding-right: 8px; }
+
+  .invoice-summary { background: #fff7e6; border: 1px solid #ffd591; border-radius: 4px; padding: 10px 16px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+  .invoice-summary .total { font-weight: 600; font-size: 15px; }
+  .invoice-summary .total.ok { color: #52c41a; }
+  .invoice-summary .total.warn { color: #ff4d4f; }
+
+  .item-sub-table { width: 100%; border-collapse: collapse; font-size: 12px; border: 1px solid #e8e8e8; border-radius: 4px; overflow: hidden; }
+  .item-sub-table thead { background: #fafafa; }
+  .item-sub-table th { padding: 6px 8px; text-align: left; font-weight: 500; color: #666; border-bottom: 1px solid #e8e8e8; white-space: nowrap; }
+  .item-sub-table td { padding: 6px 8px; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
+  .item-sub-table tbody tr:hover { background: #fafafa; }
+  .sample-block { margin-bottom: 14px; }
+  .sample-block-header { font-size: 13px; font-weight: 600; margin-bottom: 8px; padding: 8px 12px; background: #fafafa; border-radius: 4px; display: flex; align-items: center; gap: 8px; color: #333; }
+  .price-summary { background: #fafafa; padding: 12px; border-radius: 4px; display: flex; justify-content: flex-end; gap: 24px; font-size: 14px; }
+  .hint { font-size: 12px; color: #999; margin-top: 4px; }
+
+  .alert { padding: 10px 16px; border-radius: 4px; font-size: 13px; margin-bottom: 16px; }
+  .alert-info { background: #e6f7ff; border: 1px solid #91d5ff; color: #0050b3; }
+  .alert-warn { background: #fff7e6; border: 1px solid #ffd591; color: #ad6800; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo">LIMS<span>系统</span></div>
+    <div class="menu-group">
+      <div class="menu-group-title">商务阶段</div>
+      <a href="客户管理.html" class="menu-item"><span class="dot"></span>客户管理</a>
+      <a href="委托单管理.html" class="menu-item"><span class="dot"></span>委托单管理</a>
+      <a href="合同管理.html" class="menu-item"><span class="dot"></span>合同管理</a>
+    </div>
+    <div class="menu-group">
+      <div class="menu-group-title">基础业务信息管理</div>
+      <a href="合同模板管理.html" class="menu-item"><span class="dot"></span>合同模板管理</a>
+      <a href="价格管理.html" class="menu-item"><span class="dot"></span>价格管理</a>
+      <a href="CMA资质项管理.html" class="menu-item"><span class="dot"></span>CMA资质项管理</a>
+      <a href="CNAS资质项管理.html" class="menu-item"><span class="dot"></span>CNAS资质项管理</a>
+      <a href="国家能力库.html" class="menu-item"><span class="dot"></span>国家能力库</a>
+    </div>
+    <div class="menu-group">
+      <div class="menu-group-title">流程引擎</div>
+      <a href="流程引擎-待办列表.html" class="menu-item"><span class="dot"></span>待办任务<span class="menu-badge">8</span></a>
+      <a href="流程引擎-已办列表.html" class="menu-item"><span class="dot"></span>已办任务</a>
+    </div>
+  </div>
+  <div class="main">
+    <div class="topbar"><span>商务阶段</span><span>内勤部 · 李婷</span></div>
+    <div class="content">
+      <div class="breadcrumb"><a href="合同管理.html">合同管理</a> &gt; <span>新建合同</span></div>
+      <div class="page-header">
+        <h2>新建合同</h2>
+        <div>
+          <button class="btn" onclick="location.href='合同管理.html'">返回列表</button>
+          <button class="btn btn-primary" onclick="submitContract()" id="submitBtn" disabled>提交合同</button>
+        </div>
+      </div>
+
+      <!-- ====== 一、关联委托单 ====== -->
+      <div class="card">
+        <div class="card-header"><span class="section-num">一</span>关联委托单 <span class="required" style="color:#ff4d4f;font-weight:400;">*</span></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>选择委托单</label>
+              <select id="entrustOrder" onchange="onEntrustChange(this.value)">
+                <option value="">-- 请选择已完成的委托单 --</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 二、委托单详情 ====== -->
+      <div class="card">
+        <div class="card-header"><span class="section-num">二</span>委托单详情</div>
+        <div class="card-body">
+          <div class="info-grid" id="entrustInfoGrid">
+            <div style="color:#ccc;padding:8px;">请先选择委托单</div>
+          </div>
+          <div id="sampleTablesContainer" style="margin-top:16px;"></div>
+        </div>
+      </div>
+
+      <!-- ====== 三、开票信息 ====== -->
+      <div class="card">
+        <div class="card-header"><span class="section-num">三</span>开票信息 <span class="required" style="color:#ff4d4f;font-weight:400;">*</span></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group"><label>开票类型</label><select id="invoiceType"><option>普票</option><option>专票</option></select></div>
+            <div class="form-group"><label>支付方式</label><select id="paymentType">
+              <option>委托单位直接付款</option>
+              <option>第三方付款（三方协议）</option>
+              <option>第三方付款（双方协议）</option>
+              <option>预存扣款（自己预存）</option>
+              <option>第三方预存</option>
+              <option>个人付款</option>
+            </select></div>
+            <div class="form-group"><label>报告出具方式</label><select id="reportDelivery"><option>电子</option><option>纸质</option><option>邮寄</option></select></div>
+          </div>
+
+          <div style="font-size:13px;font-weight:500;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;">
+            <span>开票抬头明细</span>
+            <button class="btn btn-sm" onclick="addInvoiceHeader()" style="color:#1890ff;border-color:#1890ff;">+ 添加抬头</button>
+          </div>
+          <table class="invoice-table">
+            <thead><tr>
+              <th style="width:5%;">#</th>
+              <th style="width:18%;">开票抬头 <span style="color:#ff4d4f;">*</span></th>
+              <th style="width:14%;">税号</th>
+              <th style="width:12%;">地址</th>
+              <th style="width:10%;">电话</th>
+              <th style="width:14%;">开户行/账号</th>
+              <th style="width:9%;">开票金额 <span style="color:#ff4d4f;">*</span></th>
+              <th style="width:5%;">操作</th>
+            </tr></thead>
+            <tbody id="invoiceBody"></tbody>
+          </table>
+          <div class="invoice-summary" id="invoiceSummary">
+            <span>开票总金额</span>
+            <span>委托单折扣后金额：<strong id="invoiceTarget">¥0.00</strong> &nbsp;|&nbsp; 抬头合计：<strong id="invoiceTotal" class="total">¥0.00</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ====== 四、合同模板 ====== -->
+      <div class="card">
+        <div class="card-header"><span class="section-num">四</span>合同模板 <span class="required" style="color:#ff4d4f;font-weight:400;">*</span></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label>模板类型</label>
+              <select id="contractTemplate">
+                <option value="">-- 请选择 --</option>
+                <option>双方检验检测协议书</option>
+                <option>三方检验检测协议书</option>
+                <option>检验检测协议书（含建设/监理）</option>
+                <option>环境技术服务合同-送样</option>
+                <option>环境技术服务合同-取样</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ Mock Data ============
+const mockEntrustOrders = [
+  { id:'WT202606001', customer:'中铁建设集团有限公司', contact:'张经理', phone:'13800138001',
+    inspection_type:'委托检验', report_type:'判定', report_copies:2,
+    original_total: 9600, discount: 0.90, final_total: 8640,
+    status:'已完成',
+    sampleRows: [{
+      sample_name:'塑胶跑道面层', producer:'江苏某体育设施公司', sender:'张工', sample_status:'正常',
+      sample_grade:'优等品', sample_qty:2,
+      items:[
+        {test_item_name:'pH值', test_standard:'GB/T 14833-2020', test_method:'电位法', limit_value:'6.0~8.0', need_cma:1, need_cnas:0, unit_price:1200},
+        {test_item_name:'氨氮', test_standard:'HJ 535-2009', test_method:'纳氏试剂分光光度法', limit_value:'≤1.0mg/L', need_cma:1, need_cnas:0, unit_price:1500},
+        {test_item_name:'甲醛含量', test_standard:'GB 18583-2008', test_method:'乙酰丙酮分光光度法', limit_value:'≤0.5g/kg', need_cma:1, need_cnas:1, unit_price:1800},
+        {test_item_name:'苯系物', test_standard:'HJ 584-2010', test_method:'气相色谱法', limit_value:'≤0.05mg/m³', need_cma:1, need_cnas:1, unit_price:2200},
+        {test_item_name:'TVOC', test_standard:'GB 50325-2020', test_method:'气相色谱法', limit_value:'≤0.45mg/m³', need_cma:1, need_cnas:0, unit_price:2900}
+      ]
+    }]
+  },
+  { id:'WT202606002', customer:'碧桂园控股有限公司', contact:'李总', phone:'13900139002',
+    inspection_type:'委托抽检', report_type:'实测数据', report_copies:3,
+    original_total: 18000, discount: 0.85, final_total: 15300,
+    status:'已完成',
+    sampleRows: [{
+      sample_name:'室内空气样品', producer:'', sender:'李工', sample_status:'正常',
+      sample_grade:'', sample_qty:3,
+      items:[
+        {test_item_name:'苯', test_standard:'GB 50325-2020', test_method:'气相色谱法', limit_value:'≤0.06mg/m³', need_cma:1, need_cnas:0, unit_price:3500},
+        {test_item_name:'甲苯+二甲苯', test_standard:'GB 50325-2020', test_method:'气相色谱法', limit_value:'≤0.15mg/m³', need_cma:1, need_cnas:0, unit_price:4000},
+        {test_item_name:'TVOC', test_standard:'GB 50325-2020', test_method:'气相色谱法', limit_value:'≤0.45mg/m³', need_cma:1, need_cnas:0, unit_price:4500},
+        {test_item_name:'甲醛含量', test_standard:'GB/T 16129-1995', test_method:'AHMT分光光度法', limit_value:'≤0.08mg/m³', need_cma:1, need_cnas:1, unit_price:6000}
+      ]
+    }]
+  },
+  { id:'WT202606003', customer:'华润置地有限公司', contact:'王工', phone:'13700137003',
+    inspection_type:'定期检验', report_type:'判定', report_copies:2,
+    original_total: 25000, discount: 0.90, final_total: 22500,
+    status:'已完成',
+    sampleRows: [{
+      sample_name:'室内空气样品', producer:'', sender:'王工', sample_status:'正常',
+      sample_grade:'', sample_qty:1,
+      items:[
+        {test_item_name:'室内空气质量3项打包', test_standard:'GB 50325-2020', test_method:'气相色谱法/分光光度法', limit_value:'见各项', need_cma:1, need_cnas:1, unit_price:18000, is_pkg_child:false, pkg_savings:'（打包优惠：单独合计¥22,000，打包价¥18,000）'},
+        {test_item_name:'氨', test_standard:'GB/T 18204.2-2014', test_method:'靛酚蓝分光光度法', limit_value:'≤0.2mg/m³', need_cma:1, need_cnas:0, unit_price:2500},
+        {test_item_name:'氡', test_standard:'GB/T 16146-2015', test_method:'闪烁室法', limit_value:'≤200Bq/m³', need_cma:1, need_cnas:1, unit_price:4500}
+      ]
+    }]
+  },
+  { id:'WT202606004', customer:'保利发展控股集团', contact:'赵总', phone:'13600136004',
+    inspection_type:'委托检验', report_type:'判定', report_copies:1,
+    original_total: 15000, discount: 0.88, final_total: 13200,
+    status:'已完成',
+    sampleRows: [{
+      sample_name:'建筑保温材料', producer:'河北某建材公司', sender:'赵工', sample_status:'正常',
+      sample_grade:'A级', sample_qty:1,
+      items:[
+        {test_item_name:'压缩强度', test_standard:'GB/T 8813-2008', test_method:'压缩试验法', limit_value:'≥150kPa', need_cma:1, need_cnas:0, unit_price:5000},
+        {test_item_name:'导热系数', test_standard:'GB/T 10294-2008', test_method:'防护热板法', limit_value:'≤0.040W/(m·K)', need_cma:1, need_cnas:1, unit_price:6000},
+        {test_item_name:'燃烧性能', test_standard:'GB 8624-2012', test_method:'单体燃烧试验', limit_value:'B1级', need_cma:1, need_cnas:0, unit_price:4000}
+      ]
+    }]
+  },
+  { id:'WT202606005', customer:'万科企业股份有限公司', contact:'陈经理', phone:'13500135005',
+    inspection_type:'委托抽检', report_type:'实测数据', report_copies:2,
+    original_total: 6200, discount: 0.95, final_total: 5890,
+    status:'已完成',
+    sampleRows: [{
+      sample_name:'生活饮用水', producer:'', sender:'陈工', sample_status:'正常',
+      sample_grade:'', sample_qty:1,
+      items:[
+        {test_item_name:'pH值', test_standard:'GB/T 5750.4-2006', test_method:'玻璃电极法', limit_value:'6.5~8.5', need_cma:1, need_cnas:0, unit_price:800},
+        {test_item_name:'浑浊度', test_standard:'GB/T 5750.4-2006', test_method:'散射法', limit_value:'≤1NTU', need_cma:1, need_cnas:0, unit_price:600},
+        {test_item_name:'菌落总数', test_standard:'GB/T 5750.12-2006', test_method:'平皿计数法', limit_value:'≤100CFU/mL', need_cma:1, need_cnas:1, unit_price:4800}
+      ]
+    }]
+  }
+];
+
+// ============ Invoice Headers State ============
+let invoiceHeaders = [{title:'', tax_no:'', address:'', phone:'', bank_account:'', amount:''}];
+
+function init() {
+  // Populate entrust order dropdown
+  const sel = document.getElementById('entrustOrder');
+  mockEntrustOrders.forEach(o => {
+    sel.innerHTML += `<option value="${o.id}">${o.id} — ${o.customer}（折扣后 ¥${o.final_total.toLocaleString()}）</option>`;
+  });
+  renderInvoiceTable();
+}
+init();
+
+// ============ 委托单选择 ============
+function onEntrustChange(orderId) {
+  const order = mockEntrustOrders.find(o => o.id === orderId);
+  if (!order) {
+    document.getElementById('entrustInfoGrid').innerHTML = '<div style="color:#ccc;padding:8px;">请先选择委托单</div>';
+    document.getElementById('invoiceTarget').textContent = '¥0.00';
+    updateSubmitState();
+    updateInvoiceTotal();
+    return;
+  }
+
+  // Build item sub-table HTML
+  let sampleTableHtml = '';
+  if (order.sampleRows) {
+    order.sampleRows.forEach((sr, si) => {
+      const itemRows = sr.items.map((it, ii) => {
+        const pkgTag = it.is_pkg_child ? ' <span style="font-size:11px;color:#fa8c16;">(打包)</span>' : '';
+        const pkgNote = it.pkg_savings ? `<div style="font-size:11px;color:#fa8c16;margin-top:2px;">${it.pkg_savings}</div>` : '';
+        const cmaBadge = it.need_cma ? '<span class="tag tag-green" style="font-size:10px;padding:1px 4px;">CMA</span>' : '';
+        const cnasBadge = it.need_cnas ? '<span class="tag tag-blue" style="font-size:10px;padding:1px 4px;">CNAS</span>' : '';
+        return `<tr>
+          <td style="text-align:center;">${ii+1}</td>
+          <td>${it.test_item_name}${pkgTag}${pkgNote}</td>
+          <td style="font-size:12px;">${it.test_standard}</td>
+          <td style="font-size:12px;">${it.test_method}</td>
+          <td style="font-size:12px;">${it.limit_value}</td>
+          <td>${cmaBadge}${cnasBadge}</td>
+          <td style="text-align:right;">¥${(it.unit_price||0).toLocaleString()}</td>
+          <td style="text-align:right;">¥${((it.unit_price||0)*(sr.sample_qty||1)).toLocaleString()}</td>
+        </tr>`;
+      }).join('');
+
+      sampleTableHtml += `
+        <div class="sample-block">
+          <div class="sample-block-header"><span style="background:#1890ff;color:#fff;padding:1px 8px;border-radius:3px;font-size:11px;">样品${si+1}</span> ${sr.sample_name} ${sr.sample_grade ? `<span style="display:inline;padding:1px 6px;border-radius:3px;font-size:11px;background:#e6f7ff;color:#1890ff;">${sr.sample_grade}</span>` : ''} <span style="font-size:12px;color:#999;">数量：${sr.sample_qty}</span> ${sr.producer ? `<span style="font-size:12px;color:#999;">生产单位：${sr.producer}</span>` : ''}</div>
+          <table class="item-sub-table">
+            <thead><tr>
+              <th style="width:5%;">#</th>
+              <th style="width:22%;">检测项目</th>
+              <th style="width:18%;">检测标准</th>
+              <th style="width:16%;">检验方法</th>
+              <th style="width:14%;">限制范围</th>
+              <th style="width:10%;">资质类型</th>
+              <th style="width:7%;">单价</th>
+              <th style="width:8%;">小计</th>
+            </tr></thead>
+            <tbody>${itemRows}</tbody>
+          </table>
+        </div>`;
+    });
+  }
+
+  // Render entrust info grid
+  const grid = document.getElementById('entrustInfoGrid');
+  grid.innerHTML = `
+    <div class="info-item"><span class="label">委托单编号：</span><span class="value">${order.id}</span></div>
+    <div class="info-item"><span class="label">委托单位：</span><span class="value">${order.customer}</span></div>
+    <div class="info-item"><span class="label">联系人：</span><span class="value">${order.contact} / ${order.phone}</span></div>
+    <div class="info-item"><span class="label">检验类别：</span><span class="value">${order.inspection_type}</span></div>
+    <div class="info-item"><span class="label">报告类型：</span><span class="value">${order.report_type} / ${order.report_copies}份</span></div>
+    <div class="info-item"><span class="label">状态：</span><span class="value"><span class="tag tag-green">${order.status}</span></span></div>
+    <div class="info-item"><span class="label">折前总价：</span><span class="value">¥${order.original_total.toLocaleString()}</span></div>
+    <div class="info-item"><span class="label">折扣：</span><span class="value" style="color:#fa8c16;">${(order.discount*100).toFixed(0)}%</span></div>
+    <div class="info-item"><span class="label">折扣后金额：</span><span class="value" style="color:#cf1322;font-weight:600;">¥${order.final_total.toLocaleString()}</span></div>
+  `;
+
+  // Render sample sub-tables
+  const sampleTablesContainer = document.getElementById('sampleTablesContainer');
+  if (sampleTablesContainer) {
+    sampleTablesContainer.innerHTML = sampleTableHtml;
+  }
+
+  document.getElementById('invoiceTarget').textContent = '¥' + order.final_total.toLocaleString();
+  updateSubmitState();
+  updateInvoiceTotal();
+}
+
+// ============ 开票抬头 ============
+function addInvoiceHeader() {
+  invoiceHeaders.push({title:'', tax_no:'', address:'', phone:'', bank_account:'', amount:''});
+  renderInvoiceTable();
+}
+
+function removeInvoiceHeader(idx) {
+  if (invoiceHeaders.length <= 1) return;
+  invoiceHeaders.splice(idx, 1);
+  renderInvoiceTable();
+}
+
+function updateHeaderField(idx, field, value) {
+  invoiceHeaders[idx][field] = value;
+  updateInvoiceTotal();
+  updateSubmitState();
+}
+
+function renderInvoiceTable() {
+  const tbody = document.getElementById('invoiceBody');
+  tbody.innerHTML = invoiceHeaders.map((h, i) => `
+    <tr>
+      <td style="text-align:center;color:#999;">${i+1}</td>
+      <td><input type="text" value="${esc(h.title)}" onchange="updateHeaderField(${i},'title',this.value)" placeholder="如：中铁建设集团有限公司"></td>
+      <td><input type="text" value="${esc(h.tax_no)}" onchange="updateHeaderField(${i},'tax_no',this.value)"></td>
+      <td><input type="text" value="${esc(h.address)}" onchange="updateHeaderField(${i},'address',this.value)"></td>
+      <td><input type="text" value="${esc(h.phone)}" onchange="updateHeaderField(${i},'phone',this.value)"></td>
+      <td><input type="text" value="${esc(h.bank_account)}" onchange="updateHeaderField(${i},'bank_account',this.value)"></td>
+      <td><input type="number" value="${h.amount}" onchange="updateHeaderField(${i},'amount',this.value)" placeholder="金额" min="0" step="0.01" style="text-align:right;"></td>
+      <td style="text-align:center;">${invoiceHeaders.length>1 ? `<button class="btn btn-xs btn-danger" onclick="removeInvoiceHeader(${i})">删</button>` : ''}</td>
+    </tr>
+  `).join('');
+}
+
+function updateInvoiceTotal() {
+  const orderId = document.getElementById('entrustOrder').value;
+  const order = mockEntrustOrders.find(o => o.id === orderId);
+  const target = order ? order.final_total : 0;
+  const sum = invoiceHeaders.reduce((s, h) => s + (parseFloat(h.amount) || 0), 0);
+
+  document.getElementById('invoiceTarget').textContent = '¥' + target.toLocaleString();
+
+  const totalEl = document.getElementById('invoiceTotal');
+  totalEl.textContent = '¥' + sum.toLocaleString();
+  totalEl.className = 'total ' + (Math.abs(sum - target) < 0.01 ? 'ok' : (sum > 0 ? 'warn' : ''));
+}
+
+// ============ 提交 ============
+function updateSubmitState() {
+  const orderId = document.getElementById('entrustOrder').value;
+  const template = document.getElementById('contractTemplate').value;
+  const order = mockEntrustOrders.find(o => o.id === orderId);
+  const target = order ? order.final_total : 0;
+  const sum = invoiceHeaders.reduce((s, h) => s + (parseFloat(h.amount) || 0), 0);
+  const hasTitle = invoiceHeaders.some(h => h.title.trim());
+
+  const valid = orderId && template && hasTitle && Math.abs(sum - target) < 0.01;
+  document.getElementById('submitBtn').disabled = !valid;
+  if (!valid && sum > 0 && Math.abs(sum - target) >= 0.01 && hasTitle) {
+    // Don't change button text, just keep disabled
+  }
+}
+
+// Listen to template change
+document.getElementById('contractTemplate').addEventListener('change', updateSubmitState);
+
+function submitContract() {
+  const orderId = document.getElementById('entrustOrder').value;
+  const order = mockEntrustOrders.find(o => o.id === orderId);
+  const hdrs = invoiceHeaders.map(h => h.title.trim()).filter(Boolean).join('、');
+  alert('合同已创建并提交审批\n委托单：' + orderId + '\n委托单位：' + (order?order.customer:'') + '\n抬头：' + hdrs + '\n总金额：¥' + (order?order.final_total.toLocaleString():'0'));
+  location.href = '合同管理.html';
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+</script>
+</body>
+</html>

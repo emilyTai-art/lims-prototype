@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>新建委托单 - LIMS 商务阶段</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: #f0f2f5; color: #333; }
+  .app { display: flex; min-height: 100vh; }
+
+  .sidebar { width: 220px; background: #001529; color: #fff; flex-shrink: 0; }
+  .sidebar .logo { padding: 20px; font-size: 18px; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,.1); letter-spacing: 1px; }
+  .sidebar .logo span { color: #1890ff; }
+  .sidebar .menu-group { padding: 8px 0; }
+  .sidebar .menu-group-title { padding: 12px 24px 4px; font-size: 12px; color: rgba(255,255,255,.45); text-transform: uppercase; }
+  .sidebar .menu-item { padding: 10px 24px; cursor: pointer; font-size: 14px; transition: all .2s; display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.65); text-decoration: none; }
+  .sidebar .menu-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+  .sidebar .menu-item.active { background: #1890ff; font-weight: 600; color: #fff; }
+  .sidebar .menu-item .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.5); }
+  .sidebar .menu-item.active .dot { background: #fff; }
+  .sidebar .menu-badge { margin-left: auto; background: #ff4d4f; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 10px; }
+
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { height: 48px; background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; padding: 0 24px; justify-content: space-between; font-size: 13px; color: #666; }
+  .content { flex: 1; padding: 24px; overflow-y: auto; }
+  .breadcrumb { font-size: 13px; color: #999; margin-bottom: 16px; }
+  .breadcrumb a { color: #1890ff; text-decoration: none; }
+  .breadcrumb span { color: #333; }
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .page-header h2 { font-size: 20px; font-weight: 600; }
+  .card { background: #fff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.08); padding: 24px; }
+
+  .btn { height: 32px; padding: 0 16px; border-radius: 4px; font-size: 13px; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; color: #333; display: inline-flex; align-items: center; gap: 6px; transition: all .2s; white-space: nowrap; }
+  .btn:hover { border-color: #1890ff; color: #1890ff; }
+  .btn:active { opacity: 0.85; transform: translateY(1px); }
+  .btn-primary { background: #1890ff; border-color: #1890ff; color: #fff; }
+  .btn-primary:hover { background: #40a9ff; border-color: #40a9ff; color: #fff; }
+  .btn-danger { color: #ff4d4f; }
+  .btn-danger:hover { border-color: #ff4d4f; color: #ff4d4f; }
+  .btn-sm { height: 26px; padding: 0 10px; font-size: 12px; }
+  .btn-xs { height: 22px; padding: 0 6px; font-size: 11px; }
+
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 13px; color: #333; margin-bottom: 4px; font-weight: 500; }
+  .form-group label .required { color: #ff4d4f; margin-left: 2px; }
+  .form-group input, .form-group textarea, .form-group select { width: 100%; height: 34px; padding: 0 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; outline: none; }
+  .form-group input:focus, .form-group textarea:focus,.form-group select:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,.15); }
+  .form-group .hint { font-size: 12px; color: #999; margin-top: 2px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-row4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; }
+
+  .section-title { font-size: 14px; font-weight: 600; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
+  .quick-tooltip { font-size: 11px; color: #999; background: #fafafa; padding: 4px 8px; border-radius: 2px; }
+
+  .sample-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .sample-table th, .sample-table td { padding: 6px 4px; border: 1px solid #e8e8e8; vertical-align: top; }
+  .sample-table th { background: #f5f5f5; font-weight: 500; color: #666; font-size:11px; white-space:nowrap; }
+  .sample-table td input, .sample-table td select { height: 26px; font-size: 11px; border: 1px solid #d9d9d9; border-radius: 2px; padding: 0 4px; outline: none; }
+  .sample-table td input:focus { border-color: #1890ff; }
+  .items-sub-table { width: 100%; border-collapse: collapse; font-size: 10px; margin-top: 4px; }
+  .items-sub-table th, .items-sub-table td { padding: 3px 2px; border: 1px solid #f0f0f0; font-size:10px; }
+  .items-sub-table th { background: #fafafa; font-weight: 400; }
+  .items-sub-table select, .items-sub-table input { height: 22px !important; font-size: 10px !important; }
+
+  .price-summary { background: #fafafa; padding: 12px; border-radius: 4px; display: flex; justify-content: flex-end; gap: 24px; font-size: 14px; }
+  .hint { font-size: 12px; color: #999; margin-top: 4px; }
+
+  /* Drawer */
+  .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity .3s, visibility .3s; }
+  .drawer-overlay.show { opacity: 1; visibility: visible; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 700px; background: #fff; box-shadow: -6px 0 20px rgba(0,0,0,.12); z-index: 1001; display: flex; flex-direction: column; transform: translateX(100%); transition: transform .3s cubic-bezier(.25,.8,.25,1); }
+  .drawer-overlay.show .drawer { transform: translateX(0); }
+  .drawer-header { padding: 16px 24px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+  .drawer-header h3 { font-size: 16px; font-weight: 600; }
+  .drawer-close { width: 28px; height: 28px; border: none; background: transparent; font-size: 18px; cursor: pointer; color: #999; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+  .drawer-close:hover { background: #f5f5f5; color: #333; }
+  .drawer-body { flex: 1; padding: 8px 0 0; overflow-y: auto; }
+  .drawer-footer { padding: 12px 24px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 8px; flex-shrink: 0; }
+
+  /* Item picker — tree-style checkbox list */
+  .item-picker-l1tabs { display: flex; gap: 0; border-bottom: 1px solid #f0f0f0; padding: 0 24px; background: #fafafa; flex-shrink: 0; overflow-x: auto; }
+  .item-picker-l1tab { padding: 8px 16px; font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; color: #666; transition: all .2s; }
+  .item-picker-l1tab:hover { color: #1890ff; }
+  .item-picker-l1tab.active { color: #1890ff; border-bottom-color: #1890ff; font-weight: 600; }
+  .item-picker-l1tab .count { font-size: 11px; color: #999; margin-left: 4px; }
+  .item-picker-scroll { flex: 1; overflow-y: auto; }
+  .item-picker-section { padding: 0 24px 12px; }
+  .item-picker-section-title { font-size: 13px; font-weight: 600; color: #333; padding: 10px 0 6px; border-bottom: 1px solid #f0f0f0; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+  .item-picker-section-title .pkg-badge { font-size: 11px; background: #f9f0ff; color: #722ed1; padding: 1px 8px; border-radius: 10px; }
+  .item-picker-row { display: flex; align-items: center; padding: 6px 24px; font-size: 13px; border-bottom: 1px solid #fafafa; transition: background .15s; }
+  .item-picker-row:hover { background: #f5f7fa; }
+  .item-picker-row .checkbox-wrap { width: 20px; flex-shrink: 0; }
+  .item-picker-row .checkbox-wrap input[type="checkbox"] { width: 14px; height: 14px; margin: 0; accent-color: #1890ff; cursor: pointer; }
+  .item-picker-row .item-info { flex: 1; min-width: 0; }
+  .item-picker-row .item-name { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .item-picker-row .item-meta { font-size: 11px; color: #999; }
+  .item-picker-row .item-price { font-size: 13px; font-weight: 500; color: #cf1322; white-space: nowrap; margin-left: 8px; }
+  .item-picker-row .item-config { display: flex; gap: 10px; align-items: center; margin-left: 12px; flex-shrink: 0; font-size: 12px; }
+  .item-picker-row .item-config label { display: flex; align-items: center; gap: 3px; cursor: pointer; white-space: nowrap; }
+  .item-picker-row .item-config input[type="text"] { width: 70px; height: 26px; font-size: 12px; border: 1px solid #d9d9d9; border-radius: 4px; padding: 0 6px; outline: none; }
+  .item-picker-row .item-config input[type="text"]:focus { border-color: #1890ff; }
+  .item-picker-empty { padding: 24px; text-align: center; color: #ccc; font-size: 13px; }
+
+  /* Selected summary bar */
+  .item-picker-summary { border-top: 1px solid #f0f0f0; flex-shrink: 0; }
+  .item-picker-summary-bar { padding: 8px 24px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; font-size: 13px; background: #fafafa; }
+  .item-picker-summary-bar:hover { background: #f0f0f0; }
+  .item-picker-summary-bar .summary-text { color: #666; }
+  .item-picker-summary-bar .summary-text strong { color: #1890ff; }
+  .item-picker-summary-bar .summary-toggle { font-size: 10px; color: #999; transition: transform .2s; }
+  .item-picker-summary-bar .summary-toggle.open { transform: rotate(180deg); }
+  .item-picker-summary-list { display: none; max-height: 200px; overflow-y: auto; border-top: 1px solid #f0f0f0; padding: 4px 0; }
+  .item-picker-summary-list.show { display: block; }
+  .item-picker-summary-item { display: flex; align-items: center; padding: 5px 24px; font-size: 12px; justify-content: space-between; }
+  .item-picker-summary-item:hover { background: #fff7e6; }
+  .item-picker-summary-item .remove-btn { color: #ff4d4f; cursor: pointer; font-size: 14px; margin-left: 8px; }
+
+  /* 资质校验 红色异常 */
+  .qual-warn-row { background: #fff2f0 !important; border-left: 3px solid #ff4d4f; }
+  .qual-warn-tag { display: inline-block; background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; padding: 1px 6px; border-radius: 2px; font-size: 11px; font-weight: 500; cursor: help; position: relative; }
+  .qual-warn-tag::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: #fff1f0; color: #ff4d4f; border: 1px solid #ffa39e; padding: 4px 10px; border-radius: 4px; font-size: 11px; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .2s; z-index: 10; box-shadow: 0 2px 8px rgba(255,77,79,.15); }
+  .qual-warn-tag:hover::after { opacity: 1; }
+  .qual-warn-text { color: #ff4d4f; cursor: help; position: relative; }
+  .qual-warn-text::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: #fff1f0; color: #ff4d4f; border: 1px solid #ffa39e; padding: 4px 10px; border-radius: 4px; font-size: 11px; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity .2s; z-index: 10; box-shadow: 0 2px 8px rgba(255,77,79,.15); }
+  .qual-warn-text:hover::after { opacity: 1; }
+  .qual-check-banner { padding: 8px 16px; border-radius: 4px; font-size: 12px; margin: 0 24px 8px; display: none; }
+  .qual-check-banner.warn { background: #fff2f0; color: #ff4d4f; border: 1px solid #ffccc7; display: block; }
+  .qual-check-banner.ok { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; display: block; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo">LIMS<span>系统</span></div>
+    <div class="menu-group">
+      <div class="menu-group-title">商务阶段</div>
+      <a href="客户管理.html" class="menu-item"><span class="dot"></span>客户管理</a>
+      <a href="委托单管理.html" class="menu-item active"><span class="dot"></span>委托单管理</a>
+      <a href="合同管理.html" class="menu-item"><span class="dot"></span>合同管理</a>
+    </div>
+    <div class="menu-group">
+      <div class="menu-group-title">基础业务信息管理</div>
+      <a href="合同模板管理.html" class="menu-item"><span class="dot"></span>合同模板管理</a>
+      <a href="价格管理.html" class="menu-item"><span class="dot"></span>价格管理</a>
+      <a href="CMA资质项管理.html" class="menu-item"><span class="dot"></span>CMA资质项管理</a>
+      <a href="CNAS资质项管理.html" class="menu-item"><span class="dot"></span>CNAS资质项管理</a>
+      <a href="国家能力库.html" class="menu-item"><span class="dot"></span>国家能力库</a>
+    </div>
+    <div class="menu-group">
+      <div class="menu-group-title">流程引擎</div>
+      <a href="流程引擎-待办列表.html" class="menu-item"><span class="dot"></span>待办任务<span class="menu-badge">8</span></a>
+      <a href="流程引擎-已办列表.html" class="menu-item"><span class="dot"></span>已办任务</a>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar"><span>商务阶段</span><span>内勤部 · 张晓梅</span></div>
+    <div class="content">
+      <div class="breadcrumb">
+        <a href="委托单管理.html">委托单管理</a> &gt; <span id="pageTitle">新建委托单</span>
+      </div>
+      <div class="page-header">
+        <h2 id="pageHeaderTitle">新建委托单</h2>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary" onclick="saveIntention()">保存委托单</button>
+          <button class="btn" onclick="saveDraft()">暂存</button>
+          <button class="btn" onclick="window.location.href='委托单管理.html'">取消返回</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <!-- 步骤1：客户与联系人 -->
+        <div class="section-title"><span>步骤1：选择客户与联系人</span></div>
+        <div class="form-row">
+          <div class="form-group"><label>委托单位 <span class="required">*</span></label><select id="formCustomer" onchange="onCustomerChange()"><option value="">-- 请选择客户 --</option></select></div>
+          <div class="form-group"><label>本次联系人 <span class="required">*</span></label><select id="formContact"><option value="">-- 请先选择客户 --</option></select></div>
+        </div>
+
+        <!-- 步骤2：基本信息 -->
+        <div class="section-title"><span>步骤2：基本信息</span></div>
+        <div class="form-row">
+          <div class="form-group"><label>委托编号</label><input type="text" disabled style="background:#f5f5f5;color:#999;" value="系统自动生成"></div>
+          <div class="form-group"><label>检验类别 <span class="required">*</span></label><select id="formInspectionType"><option value="委托检验">委托检验</option><option value="委托抽检">委托抽检</option><option value="定期检验">定期检验</option></select></div>
+        </div>
+        <div class="form-row4">
+          <div class="form-group"><label>报告类型 <span class="required">*</span></label><select id="formReportType"><option value="判定">判定</option><option value="实测数据">实测数据</option></select></div>
+          <div class="form-group"><label>报告份数</label><input type="number" id="formReportCopies" value="2" min="1"></div>
+          <div class="form-group"><label>是否退样</label><select id="formReturnSample"><option value="0">否</option><option value="1">是</option></select></div>
+          <div class="form-group"><label>报告出具方式</label><select id="formReportDelivery"><option value="电子">电子</option><option value="纸质">纸质</option></select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>邮寄地址</label><input type="text" id="formMailAddress" placeholder="如需邮寄纸质报告，填写邮寄地址"></div>
+          <div class="form-group"><label>见证方</label><input type="text" id="formWitness" placeholder="选填，如监理方、教育局等需体现在报告中的见证方"></div>
+        </div>
+
+        <!-- 步骤3：受检单位 & 样品 -->
+        <div class="section-title"><span>步骤3：受检单位 & 样品</span> <span class="quick-tooltip">平铺子表录入，每行一个样品，同受检单位自动归类</span></div>
+        <div style="overflow-x:auto;" id="sampleTableContainer"></div>
+        <button class="btn btn-sm" style="margin-top:8px;border-style:dashed;width:100%;justify-content:center;" onclick="addSampleRow()">+ 添加样品行</button>
+
+        <!-- 价格汇总 -->
+        <div class="section-title"><span>价格汇总</span></div>
+        <div class="price-summary">
+          <span>折扣前总价：<strong style="color:#fa8c16;font-size:18px;" id="summaryTotal">¥0.00</strong></span>
+          <span>申请优惠后金额：<input type="number" id="formDiscountAmount" placeholder="选填，如需优惠请填写" oninput="updatePriceSummary()" style="width:160px;padding:6px 10px;border:1px solid #d9d9d9;border-radius:4px;font-size:15px;font-weight:600;color:#52c41a;"></span>
+        </div>
+        <div class="hint">价格根据所选检测项目自动计算。如需优惠，填写优惠后金额，提交审批时将进入优惠价格审批环节（周总审批）</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== Drawer: 检测项目选择 ====== -->
+<div class="drawer-overlay" id="itemPickerDrawer">
+  <div class="drawer">
+    <div class="drawer-header">
+      <h3>选择检测项目 <span style="font-size:12px;color:#999;font-weight:400;" id="itemPickerSubtitle"></span></h3>
+      <button class="drawer-close" onclick="closeItemDrawer()">✕</button>
+    </div>
+    <div class="item-picker-l1tabs" id="itemPickerL1Tabs"></div>
+    <div style="padding:8px 16px;border-bottom:1px solid #f0f0f0;flex-shrink:0;">
+      <input type="text" id="itemSearchInput" placeholder="🔍 搜索检测项目名称…" style="width:100%;height:32px;padding:0 10px;border:1px solid #d9d9d9;border-radius:4px;font-size:13px;outline:none;" oninput="renderItemDrawer()">
+    </div>
+    <div class="item-picker-scroll" id="itemPickerScroll"></div>
+    <div class="qual-check-banner" id="qualCheckBanner"></div>
+    <div class="item-picker-summary" id="itemPickerSummary">
+      <div class="item-picker-summary-bar" onclick="toggleSummaryList()">
+        <span class="summary-text">已选 <strong id="summaryItemCount">0</strong> 项</span>
+        <span class="summary-toggle" id="summaryToggle">▼</span>
+      </div>
+      <div class="item-picker-summary-list" id="summaryList"></div>
+    </div>
+    <div class="drawer-footer">
+      <button class="btn" onclick="closeItemDrawer()">取消</button>
+      <button class="btn btn-primary" id="btnQualCheck" onclick="doQualCheck()" title="按界面上选择的CMA/CNAS资质章，比对系统资质库中(检测项目+检测标准)组合">系统资质校验</button>
+      <button class="btn btn-primary" onclick="closeItemDrawer()">确认选择</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ Mock Data ============
+const mockCustomers = [
+  { id:1, customer_no:'CUS2026060001', company_name:'北京城建集团有限责任公司', tax_id:'911100001011001234', contact_address:'北京市海淀区西三环北路100号', contact_email:'bjcj@example.com', status:'正常', contacts:[{contact_name:'李明',contact_phone:'13812345678',is_active:1},{contact_name:'王芳',contact_phone:'13987654321',is_active:1},{contact_name:'赵强',contact_phone:'13600001111',is_active:0}] },
+  { id:2, customer_no:'CUS2026060002', company_name:'中建三局集团有限公司', tax_id:'914200001782580100', contact_address:'武汉市武昌区中南路99号', contact_email:'zj3j@example.com', status:'正常', contacts:[{contact_name:'陈伟',contact_phone:'13712349876',is_active:1}] },
+  { id:3, customer_no:'CUS2026060003', company_name:'北京市XX学校第二运动场建设项目', tax_id:'', contact_address:'北京市朝阳区XX路200号', contact_email:'', status:'正常', contacts:[{contact_name:'刘洋',contact_phone:'13500001111',is_active:1}] },
+  { id:4, customer_no:'CUS2026060004', company_name:'上海环境检测技术有限公司', tax_id:'91310000123456789X', contact_address:'上海市浦东新区张江路500号', contact_email:'shhj@example.com', status:'正常', contacts:[{contact_name:'孙经理',contact_phone:'13811112222',is_active:1},{contact_name:'周工',contact_phone:'13622223333',is_active:1}] },
+];
+
+// ============ 业务类型树 ============
+const bizTypeTree = [
+  { id:'BT01', name:'环境类检验检测', children: [
+    { id:'BT0101', name:'水质检测', children: [
+      { id:'BT010101', name:'地表水' }, { id:'BT010102', name:'地下水' }, { id:'BT010103', name:'生活饮用水' },
+    ]},
+    { id:'BT0102', name:'空气检测', children: [
+      { id:'BT010201', name:'环境空气' }, { id:'BT010202', name:'室内空气' }, { id:'BT010203', name:'废气' },
+    ]},
+    { id:'BT0103', name:'土壤/沉积物检测' }, { id:'BT0104', name:'噪声检测' },
+  ]},
+  { id:'BT02', name:'运动设施检验检测', children: [
+    { id:'BT0201', name:'塑胶跑道' }, { id:'BT0202', name:'人造草坪' }, { id:'BT0203', name:'运动木地板' },
+  ]},
+  { id:'BT03', name:'建材检验检测', children: [
+    { id:'BT0301', name:'涂料/油漆' }, { id:'BT0302', name:'人造板/板材' }, { id:'BT0303', name:'防水材料' },
+  ]},
+  { id:'BT04', name:'食品农产品检验检测', children: [
+    { id:'BT0401', name:'食品' }, { id:'BT0402', name:'农产品' }, { id:'BT0403', name:'水产品' },
+  ]},
+];
+
+function getBizTypePath(id) {
+  for (const l1 of bizTypeTree) {
+    if (l1.id === id) return l1.name;
+    if (l1.children) for (const l2 of l1.children) {
+      if (l2.id === id) return l1.name + ' / ' + l2.name;
+      if (l2.children) for (const l3 of l2.children) {
+        if (l3.id === id) return l1.name + ' / ' + l2.name + ' / ' + l3.name;
+      }
+    }
+  }
+  return '';
+}
+
+// ============ 单项价格库（与价格管理保持一致） ============
+const singleItems = [
+  { id:1, item_name:'pH值', biz_type_id:'BT010103', test_standard:'GB 5749-2022', test_method:'电极法', price_type:'单价', unit_price:40, unit:'元/样' },
+  { id:2, item_name:'甲醛含量', biz_type_id:'BT010202', test_standard:'GB/T 18883-2022', test_method:'气相色谱法', price_type:'单价', unit_price:800, unit:'元/样' },
+  { id:3, item_name:'苯系物', biz_type_id:'BT010202', test_standard:'GB/T 18883-2022', test_method:'气相色谱法', price_type:'单价', unit_price:1200, unit:'元/样' },
+  { id:4, item_name:'TVOC', biz_type_id:'BT010202', test_standard:'GB/T 18883-2022', test_method:'热解吸/气相色谱法', price_type:'单价', unit_price:600, unit:'元/样' },
+  { id:5, item_name:'塑胶跑道-厚度', biz_type_id:'BT0201', test_standard:'GB 36246-2018', test_method:'游标卡尺法', price_type:'单价', unit_price:200, unit:'元/样' },
+  { id:6, item_name:'拉伸强度', biz_type_id:'BT0201', test_standard:'GB/T 528-2009', test_method:'万能试验机法', price_type:'单价', unit_price:300, unit:'元/样' },
+  { id:7, item_name:'甲醛含量', biz_type_id:'BT0302', test_standard:'GB 18580-2017', test_method:'气候箱法', price_type:'单价', unit_price:800, unit:'元/样' },
+  { id:8, item_name:'氨氮', biz_type_id:'BT010101', test_standard:'HJ 535-2009', test_method:'纳氏试剂分光光度法', price_type:'单价', unit_price:150, unit:'元/样' },
+  { id:9, item_name:'重金属铅', biz_type_id:'BT0401', test_standard:'GB 5009.12-2017', test_method:'石墨炉原子吸收法', price_type:'单价', unit_price:280, unit:'元/样' },
+];
+
+const packageItems = [
+  { id:101, pkg_name:'室内空气质量3项打包', biz_type_id:'BT010202', package_price:3500, unit:'元/组', item_ids:[2,3,4] },
+  { id:102, pkg_name:'塑胶跑道物理性能打包', biz_type_id:'BT0201', package_price:800, unit:'元/组', item_ids:[5,6] },
+];
+
+// ============ 系统资质库（CMA/CNAS能力范围模拟） ============
+// key = "检测项目|检测标准" , value = {cma:bool, cnas:bool}
+const mockQualLibrary = {
+  'pH值|GB 5749-2022':                          {cma:1, cnas:0},
+  '甲醛含量|GB/T 18883-2022':                    {cma:1, cnas:1},
+  '苯系物|GB/T 18883-2022':                      {cma:1, cnas:1},
+  'TVOC|GB/T 18883-2022':                       {cma:1, cnas:0},
+  '塑胶跑道-厚度|GB 36246-2018':                  {cma:1, cnas:1},
+  '拉伸强度|GB/T 528-2009':                      {cma:1, cnas:0},
+  '甲醛含量|GB 18580-2017':                      {cma:1, cnas:1},
+  '氨氮|HJ 535-2009':                            {cma:1, cnas:0},
+  '重金属铅|GB 5009.12-2017':                    {cma:1, cnas:1},
+};
+
+function getCustomer(id) { return mockCustomers.find(c => c.id === id); }
+
+// ============ STATE ============
+let editingId = null;
+let sampleRows = [];
+
+// ============ SAMPLE ROWS ============
+function addSampleRow() {
+  sampleRows.push({
+    inspected_unit_name:'', inspected_unit_tax_no:'', inspected_unit_contact:'', inspected_unit_phone:'',
+    sample_name:'', producer:'', trademark:'', spec_model:'', production_date:'', sender:'', sample_status:'', sample_grade:'', sample_qty:1,
+    items: [{test_item_name:'', test_standard:'', test_method:'', limit_value:'', need_cma:1, need_cnas:0, unit_price:0}],
+    expanded: true
+  });
+  renderSampleTable();
+}
+
+function copyPrevRow(ri) {
+  if (ri > 0) {
+    var prev = sampleRows[ri-1];
+    var curr = sampleRows[ri];
+    curr.inspected_unit_name = prev.inspected_unit_name;
+    curr.inspected_unit_tax_no = prev.inspected_unit_tax_no;
+    curr.inspected_unit_contact = prev.inspected_unit_contact;
+    curr.inspected_unit_phone = prev.inspected_unit_phone;
+    renderSampleTable();
+  }
+}
+
+function copyPrevItems(ri) {
+  if (ri > 0) {
+    var prevItems = sampleRows[ri-1].items;
+    if (prevItems.length === 0) { alert('上一行无检测项目可复制'); return; }
+    sampleRows[ri].items = prevItems.map(function(it) {
+      return Object.assign({}, it);
+    });
+    renderSampleTable();
+    updatePriceSummary();
+  }
+}
+
+function removeSampleRow(ri) { sampleRows.splice(ri,1); renderSampleTable(); updatePriceSummary(); }
+function addItem(ri) { sampleRows[ri].items.push({test_item_name:'', test_standard:'', test_method:'', limit_value:'', need_cma:1, need_cnas:0, unit_price:0}); renderSampleTable(); }
+function removeItem(ri, ii) { sampleRows[ri].items.splice(ii,1); renderSampleTable(); updatePriceSummary(); }
+
+function copyItems(targetRi) {
+  const options = [];
+  sampleRows.forEach((r, i) => { if (r.items.length>0 && i!==targetRi) options.push({i, label:'行'+(i+1)+'：'+((r.sample_name||'未命名')+' ('+r.items.length+'项)')}); });
+  if (options.length===0) { alert('没有其他已配置检测项目的样品可供复制'); return; }
+  if (options.length===1) { doCopyItems(options[0].i, targetRi); }
+  else { const idx = parseInt(prompt('选择复制源：\n\n'+options.map((o,j)=>(j+1)+'. '+o.label).join('\n')+'\n\n输入序号：'))-1; if (idx>=0 && idx<options.length) doCopyItems(options[idx].i, targetRi); }
+}
+function doCopyItems(srcRi, targetRi) { sampleRows[targetRi].items = sampleRows[srcRi].items.map(it=>({...it})); sampleRows[targetRi].expanded=true; renderSampleTable(); updatePriceSummary(); }
+
+function onItemSelect(ri, ii) {
+  const selVal = document.getElementById(`sitem_${ri}_${ii}`).value;
+  if (!selVal) return;
+
+  // Check if it's a package (prefix "PKG_")
+  if (selVal.startsWith('PKG_')) {
+    const pkgId = parseInt(selVal.replace('PKG_',''));
+    const pkg = packageItems.find(p => p.id === pkgId);
+    if (pkg) {
+      // Remove this single placeholder item
+      const currentItem = sampleRows[ri].items[ii];
+      // Replace with all package child items
+      const pkgChildren = p.item_ids.map(iid => {
+        const s = singleItems.find(x => x.id === iid);
+        return s ? {
+          test_item_name: s.item_name,
+          test_standard: s.test_standard,
+          test_method: s.test_method,
+          limit_value: currentItem.limit_value,
+          need_cma: currentItem.need_cma,
+          need_cnas: currentItem.need_cnas,
+          unit_price: s.unit_price,
+          is_pkg_child: true,
+          pkg_id: pkg.id,
+          pkg_name: p.pkg_name,
+        } : null;
+      }).filter(Boolean);
+
+      // Add a header row + children
+      // Insert all items at current position
+      sampleRows[ri].items.splice(ii, 1, ...pkgChildren);
+      // Mark package benefit: show the package savings
+      const totalSingle = pkgChildren.reduce((s,c) => s + c.unit_price, 0);
+      if (pkg.package_price < totalSingle) {
+        sampleRows[ri].items[ii].pkg_savings = '（打包优惠：单独合计¥' + totalSingle + '，打包价¥' + pkg.package_price + '）';
+      }
+    }
+    updatePriceSummary();
+    renderSampleTable();
+    return;
+  }
+
+  // Individual item selected
+  const itemId = parseInt(selVal);
+  const s = singleItems.find(x => x.id === itemId);
+  if (s) {
+    sampleRows[ri].items[ii].test_item_name = s.item_name;
+    sampleRows[ri].items[ii].test_standard = s.test_standard;
+    sampleRows[ri].items[ii].test_method = s.test_method;
+    sampleRows[ri].items[ii].unit_price = s.unit_price;
+    sampleRows[ri].items[ii].is_pkg_child = false;
+    updatePriceSummary();
+    renderSampleTable();
+  }
+}
+
+function toggleRowExpand(ri) { openItemDrawer(ri); }
+
+function renderSampleTable() {
+  const container = document.getElementById('sampleTableContainer');
+  if (sampleRows.length===0) { container.innerHTML='<div style="text-align:center;padding:24px;color:#ccc;">暂无样品，点击下方按钮添加</div>'; return; }
+  let html = '<table class="sample-table"><thead><tr><th style="width:30px;">#</th><th>受检单位名称<span style="color:#ff4d4f;">*</span></th><th>受检单位税号</th><th>受检单位联系人<span style="color:#ff4d4f;">*</span></th><th>受检单位电话</th><th>样品名称<span style="color:#ff4d4f;">*</span></th><th>生产单位</th><th>商标</th><th>规格型号</th><th>生产日期</th><th>送样人</th><th>样品状态</th><th>样品等级</th><th>数量</th><th style="width:180px;">检测项目</th><th style="width:80px;">操作</th></tr></thead><tbody>';
+  sampleRows.forEach((r, ri) => {
+    const itemCount = r.items.filter(it=>it.test_item_name).length;
+    const itemSummary = itemCount > 0
+      ? (r.items.filter(it=>it.test_item_name).slice(0,3).map(it=>{
+          var warn = it.qual_warn ? ' <span class="qual-warn-text" data-tip="'+(it.qual_warn_msg||'')+'">⚠</span>' : '';
+          return it.test_item_name + warn;
+        }).join('、') + (itemCount>3?' 等'+(itemCount)+'项':''))
+      : '点击选择';
+    html += `<tr>
+      <td style="text-align:center;">${ri+1}</td>
+      <td><input type="text" value="${esc(r.inspected_unit_name)}" onchange="sampleRows[${ri}].inspected_unit_name=this.value" placeholder="必填" style="width:140px;"></td>
+      <td><input type="text" value="${esc(r.inspected_unit_tax_no)}" onchange="sampleRows[${ri}].inspected_unit_tax_no=this.value" style="width:130px;" placeholder="选填"></td>
+      <td><input type="text" value="${esc(r.inspected_unit_contact)}" onchange="sampleRows[${ri}].inspected_unit_contact=this.value" style="width:90px;" placeholder="必填"></td>
+      <td><input type="text" value="${esc(r.inspected_unit_phone)}" onchange="sampleRows[${ri}].inspected_unit_phone=this.value" style="width:100px;"></td>
+      <td><input type="text" value="${esc(r.sample_name)}" onchange="sampleRows[${ri}].sample_name=this.value" style="width:110px;" placeholder="必填"></td>
+      <td><input type="text" value="${esc(r.producer)}" onchange="sampleRows[${ri}].producer=this.value" style="width:100px;" placeholder="选填"></td>
+      <td><input type="text" value="${esc(r.trademark||'')}" onchange="sampleRows[${ri}].trademark=this.value" style="width:80px;" placeholder="选填"></td>
+      <td><input type="text" value="${esc(r.spec_model||'')}" onchange="sampleRows[${ri}].spec_model=this.value" style="width:90px;" placeholder="选填"></td>
+      <td><input type="text" value="${esc(r.production_date||'')}" onchange="sampleRows[${ri}].production_date=this.value" style="width:90px;" placeholder="如2026-06"></td>
+      <td><input type="text" value="${esc(r.sender)}" onchange="sampleRows[${ri}].sender=this.value" style="width:75px;" placeholder="选填"></td>
+      <td><input type="text" value="${esc(r.sample_status)}" onchange="sampleRows[${ri}].sample_status=this.value" style="width:90px;" placeholder="实验室填写"></td>
+      <td><input type="text" value="${esc(r.sample_grade)}" onchange="sampleRows[${ri}].sample_grade=this.value" style="width:90px;" placeholder="实验室填写"></td>
+      <td><input type="number" value="${r.sample_qty}" onchange="sampleRows[${ri}].sample_qty=parseInt(this.value)||1;updatePriceSummary()" style="width:45px;" min="1"></td>
+      <td style="text-align:center;white-space:nowrap;">
+        <button class="btn btn-xs" onclick="openItemDrawer(${ri})" style="color:#1890ff;border-color:#1890ff;margin-bottom:2px;">选择项目</button>
+        ${itemCount>0 ? `<button class="btn btn-xs" onclick="openItemDrawer(${ri})" style="color:#999;margin-bottom:2px;">${itemCount}项</button><div style="font-size:10px;color:#666;margin-top:2px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${itemSummary}</div>` : ''}
+      </td>
+      <td style="text-align:center;white-space:nowrap;">
+        <button class="btn btn-xs" onclick="copyPrevRow(${ri})" style="margin-bottom:2px;" title="复制上一行受检单位信息">复制受检单位</button>
+        <button class="btn btn-xs" onclick="copyPrevItems(${ri})" style="margin-bottom:2px;" title="复制上一行检测项目">复制检测项目</button>
+        <button class="btn btn-xs btn-danger" onclick="removeSampleRow(${ri})">删除</button>
+      </td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  container.innerHTML = html;
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function updatePriceSummary() {
+  let total = 0;
+  sampleRows.forEach(r => { r.items.forEach(it => { total += (it.unit_price||0)*(r.sample_qty||1); }); });
+  document.getElementById('summaryTotal').textContent = '¥'+total.toLocaleString('zh-CN',{minimumFractionDigits:2});
+}
+
+// ============ CUSTOMER & SAVE ============
+function loadCustomerOptions() {
+  document.getElementById('formCustomer').innerHTML = '<option value="">-- 请选择客户 --</option>' + mockCustomers.filter(c=>c.status==='正常').map(c=>`<option value="${c.id}">${c.customer_no} - ${c.company_name}</option>`).join('');
+}
+
+function onCustomerChange() {
+  const cid = parseInt(document.getElementById('formCustomer').value);
+  const sel = document.getElementById('formContact');
+  const c = getCustomer(cid);
+  if (!c) { sel.innerHTML = '<option value="">-- 请先选择客户 --</option>'; return; }
+  const active = c.contacts.filter(ct=>ct.is_active);
+  sel.innerHTML = active.map((ct,i)=>`<option value="${i}">${ct.contact_name} / ${ct.contact_phone}</option>`).join('');
+  sampleRows.forEach(r => {
+    if (!r.inspected_unit_name) r.inspected_unit_name = c.company_name;
+    if (!r.inspected_unit_contact && active.length>0) r.inspected_unit_contact = active[0].contact_name;
+    if (!r.inspected_unit_phone && active.length>0) r.inspected_unit_phone = active[0].contact_phone;
+  });
+  renderSampleTable();
+}
+
+function saveIntention() {
+  const cid = parseInt(document.getElementById('formCustomer').value);
+  if (!cid) { alert('请选择委托单位'); return; }
+  if (sampleRows.length===0) { alert('请至少添加一个样品'); return; }
+  // Validate required fields
+  var hasEmptyUnitName = sampleRows.some(function(r) { return !r.inspected_unit_name.trim(); });
+  var hasEmptyContact = sampleRows.some(function(r) { return !r.inspected_unit_contact.trim(); });
+  var hasEmptySample = sampleRows.some(function(r) { return !r.sample_name.trim(); });
+  if (hasEmptyUnitName) { alert('所有样品的受检单位名称为必填项，请检查'); return; }
+  if (hasEmptyContact) { alert('所有样品的受检单位联系人为必填项，请检查'); return; }
+  if (hasEmptySample) { alert('所有样品的样品名称为必填项，请检查'); return; }
+  const hasItem = sampleRows.some(r=>r.items.some(it=>it.test_item_name));
+  if (!hasItem) { alert('请至少为一个样品配置检测项目'); return; }
+  // Calculate price
+  var totalPrice = 0;
+  sampleRows.forEach(function(r){ r.items.forEach(function(it){ totalPrice += (it.unit_price||0)*(r.sample_qty||1); }); });
+  var discountVal = parseFloat(document.getElementById('formDiscountAmount').value);
+  var finalPrice = (discountVal>0 && discountVal<totalPrice) ? discountVal : totalPrice;
+  if (editingId) {
+    alert('委托单 '+editingId+' 保存成功！');
+  } else {
+    alert('委托单创建成功（草稿状态），可在委托单列表提交审批。\n编号：ITN'+new Date().toISOString().slice(0,10).replace(/-/g,'')+String(Math.floor(Math.random()*900+100)));
+  }
+  window.location.href = '委托单管理.html';
+}
+
+function saveDraft() {
+  alert('委托单已暂存为草稿，可在委托单管理列表中继续编辑');
+  window.location.href = '委托单管理.html';
+}
+
+// ============ INIT ============
+(function() {
+  loadCustomerOptions();
+  const params = new URLSearchParams(window.location.search);
+  const preCust = params.get('customer');
+  if (preCust) {
+    setTimeout(function() {
+      const sel = document.getElementById('formCustomer');
+      for (let i = 0; i < sel.options.length; i++) {
+        if (sel.options[i].text.indexOf(preCust) >= 0) {
+          sel.value = sel.options[i].value;
+          onCustomerChange();
+          break;
+        }
+      }
+    }, 100);
+  }
+})();
+
+// ============ 检测项目抽屉 ============
+let itemDrawerRi = null;
+let itemPickerL1 = null; // current L1 biz_type_id, null = 全部
+
+function openItemDrawer(ri) {
+  itemDrawerRi = ri;
+  itemPickerL1 = null; // 默认全部
+  document.getElementById('itemSearchInput').value = ''; // 清空搜索
+  const r = sampleRows[ri];
+  document.getElementById('itemPickerSubtitle').textContent = r ? ('— ' + (r.sample_name || '样品'+(ri+1))) : '';
+  document.getElementById('qualCheckBanner').className = 'qual-check-banner'; // 重置校验状态
+  renderItemL1Tabs();
+  renderItemDrawer();
+  document.getElementById('itemPickerDrawer').classList.add('show');
+}
+
+function closeItemDrawer() {
+  document.getElementById('itemPickerDrawer').classList.remove('show');
+  renderSampleTable();
+  updatePriceSummary();
+}
+
+function selectL1(l1Id) {
+  itemPickerL1 = (itemPickerL1 === l1Id) ? null : l1Id; // toggle off if click again
+  renderItemL1Tabs();
+  renderItemDrawer();
+}
+
+function renderItemL1Tabs() {
+  const container = document.getElementById('itemPickerL1Tabs');
+  let html = `<div class="item-picker-l1tab${itemPickerL1===null?' active':''}" onclick="selectL1(null)">全部</div>`;
+  bizTypeTree.forEach(l1 => {
+    const active = itemPickerL1 === l1.id;
+    // Count items under this L1
+    const l1Ids = [];
+    function collectIds(node) { l1Ids.push(node.id); if (node.children) node.children.forEach(collectIds); }
+    collectIds(l1);
+    const hasItems = singleItems.filter(s => l1Ids.includes(s.biz_type_id)).length;
+    html += `<div class="item-picker-l1tab${active?' active':''}" onclick="selectL1('${l1.id}')">${l1.name}<span class="count">${hasItems}</span></div>`;
+  });
+  container.innerHTML = html;
+}
+
+// Get selected items map for current row
+function getSelectedMap() {
+  const r = sampleRows[itemDrawerRi];
+  if (!r) return {};
+  const map = {};
+  r.items.forEach(it => {
+    if (it.test_item_name) {
+      map[it.test_item_name + '|' + it.test_standard] = it;
+    }
+  });
+  return map;
+}
+
+// ============ 系统资质校验 ============
+function doQualCheck() {
+  const ri = itemDrawerRi;
+  const r = sampleRows[ri];
+  if (!r) return;
+  const items = r.items.filter(function(it) { return it.test_item_name; });
+  if (items.length === 0) {
+    var banner = document.getElementById('qualCheckBanner');
+    banner.className = 'qual-check-banner warn';
+    banner.textContent = '当前样品未选择任何检测项目，无法校验';
+    return;
+  }
+  var warnCount = 0;
+  items.forEach(function(it) {
+    var key = (it.test_item_name||'') + '|' + (it.test_standard||'');
+    var lib = mockQualLibrary[key];
+    it.qual_warn = false;
+    it.qual_warn_msg = '';
+    var msgs = [];
+    if (!lib) {
+      // 该组合完全不在资质库中
+      msgs.push('该检测项目&标准组合不在系统资质库中');
+    } else {
+      if (it.need_cma && !lib.cma) msgs.push('CMA资质项不存在于系统资质库中');
+      if (it.need_cnas && !lib.cnas) msgs.push('CNAS资质项不存在于系统资质库中');
+    }
+    if (msgs.length > 0) {
+      it.qual_warn = true;
+      it.qual_warn_msg = msgs.join('；');
+      warnCount++;
+    }
+  });
+  var banner = document.getElementById('qualCheckBanner');
+  if (warnCount > 0) {
+    banner.className = 'qual-check-banner warn';
+    banner.textContent = '资质校验：' + warnCount + ' 项异常（红色高亮），请核实检测项目&标准是否在CMA/CNAS资质库范围内';
+  } else {
+    banner.className = 'qual-check-banner ok';
+    banner.textContent = '资质校验通过：所有已选项目均匹配系统资质库';
+    // 3秒后自动隐藏绿色通过提示
+    setTimeout(function() { banner.className = 'qual-check-banner'; }, 3000);
+  }
+  renderItemDrawer();
+  renderSummary();
+  renderSampleTable();
+  updatePriceSummary();
+}
+
+function renderItemDrawer() {
+  const ri = itemDrawerRi;
+  const r = sampleRows[ri];
+  if (!r) return;
+
+  const selectedMap = getSelectedMap();
+  const searchText = (document.getElementById('itemSearchInput').value || '').toLowerCase();
+
+  // Filter helper
+  function filterBySearch(items) {
+    if (!searchText) return items;
+    return items.filter(function(s) { return (s.item_name||'').toLowerCase().indexOf(searchText) >= 0; });
+  }
+
+  let html = '';
+
+  // --- 打包项目 (filtered by L1) ---
+  const visiblePkgs = packageItems.filter(pkg => {
+    if (!itemPickerL1) return true;
+    for (const l1 of bizTypeTree) {
+      if (l1.id === itemPickerL1) {
+        const ids = []; function c(n) { ids.push(n.id); if (n.children) n.children.forEach(c); }
+        c(l1);
+        return ids.includes(pkg.biz_type_id);
+      }
+    }
+    return true;
+  }).filter(pkg => {
+    if (!searchText) return true;
+    return (pkg.pkg_name||'').toLowerCase().indexOf(searchText) >= 0;
+  });
+
+  if (visiblePkgs.length > 0) {
+    html += `<div class="item-picker-section"><div class="item-picker-section-title">📦 打包项目 <span class="pkg-badge">选打包=全选子项</span></div>`;
+    visiblePkgs.forEach(pkg => {
+      const childItems = pkg.item_ids.map(iid => singleItems.find(s => s.id === iid)).filter(Boolean);
+      const allChildSelected = childItems.every(s => {
+        const key = (s.item_name||'') + '|' + (s.test_standard||'');
+        return !!selectedMap[key];
+      });
+      html += `<div class="item-picker-row" style="background:#fafafa;">
+        <div class="checkbox-wrap"><input type="checkbox" id="ip_pkg_${pkg.id}" ${allChildSelected&&childItems.length>0?'checked':''} onchange="togglePackageCheck(${pkg.id})"></div>
+        <div class="item-info"><div class="item-name">📦 ${pkg.pkg_name}</div><div class="item-meta">${pkg.item_ids.length}项：${childItems.map(s=>s.item_name).join('、')}</div></div>
+        <div class="item-price">¥${pkg.package_price}/${pkg.unit||'组'}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // --- 单项项目 (grouped by full path, filtered by L1 + search) ---
+  const bizGroups = {};
+  singleItems.forEach(s => {
+    // L1 filter
+    if (itemPickerL1) {
+      const l1Id = s.biz_type_id.substring(0, 4);
+      if (l1Id !== itemPickerL1) return;
+    }
+    // Search filter
+    if (searchText && (s.item_name||'').toLowerCase().indexOf(searchText) < 0) return;
+    const path = getBizTypePath(s.biz_type_id);
+    if (!bizGroups[path]) bizGroups[path] = [];
+    bizGroups[path].push(s);
+  });
+
+  if (Object.keys(bizGroups).length > 0) {
+    html += `<div class="item-picker-section"><div class="item-picker-section-title">🔬 单项检测项目</div>`;
+    Object.keys(bizGroups).forEach(path => {
+      html += `<div class="item-picker-section-title" style="font-weight:400;font-size:12px;color:#666;border:none;padding:6px 0 2px;">${path}</div>`;
+      bizGroups[path].forEach(s => {
+        const key = (s.item_name||'') + '|' + (s.test_standard||'');
+        const cur = selectedMap[key];
+        const checked = !!cur;
+        const warnClass = (cur && cur.qual_warn) ? ' qual-warn-row' : '';
+        const warnTag = (cur && cur.qual_warn) ? ' <span class="qual-warn-tag" data-tip="'+(cur.qual_warn_msg||'')+'">⚠</span>' : '';
+        html += `<div class="item-picker-row${warnClass}" id="ip_row_${ri}_${s.id}">
+          <div class="checkbox-wrap"><input type="checkbox" ${checked?'checked':''} onchange="toggleSingleCheck(${ri},${s.id},this.checked)"></div>
+          <div class="item-info"><div class="item-name">${s.item_name}${warnTag}</div><div class="item-meta">标准：${s.test_standard||'—'} | 方法：${s.test_method||'—'}</div></div>
+          <div class="item-price">¥${s.unit_price}/${s.unit||'样'}</div>
+          <div class="item-config" id="ip_cfg_${ri}_${s.id}" style="${checked?'':'display:none'}">
+            <label><input type="checkbox" ${cur&&cur.need_cma?'checked':''} onchange="updateItemConfig(${ri},${s.id},'need_cma',this.checked?1:0)">CMA</label>
+            <label><input type="checkbox" ${cur&&cur.need_cnas?'checked':''} onchange="updateItemConfig(${ri},${s.id},'need_cnas',this.checked?1:0)">CNAS</label>
+            <input type="text" placeholder="限量值" value="${cur&&cur.limit_value?esc(cur.limit_value):''}" onchange="updateItemConfig(${ri},${s.id},'limit_value',this.value)">
+          </div>
+        </div>`;
+      });
+    });
+    html += `</div>`;
+  }
+
+  document.getElementById('itemPickerScroll').innerHTML = html || '<div class="item-picker-empty">暂无可选项目</div>';
+  renderSummary();
+}
+
+// ============ 底部已选汇总 ============
+function renderSummary() {
+  const r = sampleRows[itemDrawerRi];
+  const items = r ? r.items.filter(it => it.test_item_name) : [];
+  document.getElementById('summaryItemCount').textContent = items.length;
+
+  const container = document.getElementById('summaryList');
+  if (items.length === 0) {
+    container.innerHTML = '<div style="padding:16px;text-align:center;color:#ccc;font-size:12px;">暂未选择检测项目</div>';
+  } else {
+    container.innerHTML = items.map((it, ii) => `
+      <div class="item-picker-summary-item${it.qual_warn?' qual-warn-row':''}">
+        <span style="flex:1;min-width:0;">
+          <span style="font-weight:500;">${it.test_item_name}</span>
+          <span style="color:#999;margin-left:6px;">${it.test_standard||'—'}</span>
+          <span style="color:#cf1322;margin-left:8px;">¥${it.unit_price}</span>
+          ${it.qual_warn ? '<span class="qual-warn-tag" data-tip="'+(it.qual_warn_msg||'')+'">⚠资质异常</span>' : ''}
+        </span>
+        <span style="color:#999;font-size:11px;white-space:nowrap;">${it.need_cma?'CMA':''}${it.need_cma&&it.need_cnas?'/':''}${it.need_cnas?'CNAS':''}</span>
+        <span class="remove-btn" onclick="event.stopPropagation();removeItemByKey(${itemDrawerRi},'${(it.test_item_name||'').replace(/'/g,"\\'")}|${(it.test_standard||'').replace(/'/g,"\\'")}');renderItemDrawer();renderSampleTable();updatePriceSummary();" title="移除">×</span>
+      </div>
+    `).join('');
+  }
+}
+
+function toggleSummaryList() {
+  const list = document.getElementById('summaryList');
+  const toggle = document.getElementById('summaryToggle');
+  list.classList.toggle('show');
+  toggle.classList.toggle('open');
+}
+
+function togglePackageCheck(pkgId) {
+  const cb = document.getElementById('ip_pkg_'+pkgId);
+  const pkg = packageItems.find(p => p.id === pkgId);
+  if (!pkg) return;
+
+  const childItems = pkg.item_ids.map(iid => singleItems.find(s => s.id === iid)).filter(Boolean);
+
+  if (cb.checked) {
+    // Add all child items to sample row
+    childItems.forEach(s => {
+      addOrEnsureItem(itemDrawerRi, s);
+    });
+  } else {
+    // Remove all child items
+    childItems.forEach(s => {
+      removeItemByKey(itemDrawerRi, (s.item_name||'') + '|' + (s.test_standard||''));
+    });
+  }
+  renderItemDrawer();
+  renderSampleTable();
+  updatePriceSummary();
+}
+
+function toggleSingleCheck(ri, itemId, checked) {
+  const s = singleItems.find(x => x.id === itemId);
+  if (!s) return;
+
+  if (checked) {
+    addOrEnsureItem(ri, s);
+  } else {
+    removeItemByKey(ri, (s.item_name||'') + '|' + (s.test_standard||''));
+  }
+  renderItemDrawer();
+  renderSampleTable();
+  updatePriceSummary();
+}
+
+function addOrEnsureItem(ri, s) {
+  const key = (s.item_name||'') + '|' + (s.test_standard||'');
+  const exists = sampleRows[ri].items.find(it => {
+    return ((it.test_item_name||'') + '|' + (it.test_standard||'')) === key;
+  });
+  if (!exists) {
+    sampleRows[ri].items.push({
+      test_item_name: s.item_name,
+      test_standard: s.test_standard,
+      test_method: s.test_method,
+      limit_value: '',
+      need_cma: 1,
+      need_cnas: 0,
+      unit_price: s.unit_price,
+      is_pkg_child: false,
+    });
+  }
+}
+
+function removeItemByKey(ri, key) {
+  sampleRows[ri].items = sampleRows[ri].items.filter(it => {
+    return ((it.test_item_name||'') + '|' + (it.test_standard||'')) !== key;
+  });
+}
+
+function updateItemConfig(ri, itemId, field, value) {
+  const s = singleItems.find(x => x.id === itemId);
+  if (!s) return;
+  const key = (s.item_name||'') + '|' + (s.test_standard||'');
+  const it = sampleRows[ri].items.find(it => {
+    return ((it.test_item_name||'') + '|' + (it.test_standard||'')) === key;
+  });
+  if (it) it[field] = value;
+}
+
+// Close drawer on overlay click
+document.getElementById('itemPickerDrawer').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('show');
+});
+</script>
+</body>
+</html>

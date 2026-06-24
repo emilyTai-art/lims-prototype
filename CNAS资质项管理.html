@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CNAS资质项管理 - LIMS 商务阶段</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: #f0f2f5; color: #333; }
+  .app { display: flex; min-height: 100vh; }
+
+  .sidebar { width: 220px; background: #001529; color: #fff; flex-shrink: 0; }
+  .sidebar .logo { padding: 20px; font-size: 18px; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,.1); letter-spacing: 1px; }
+  .sidebar .logo span { color: #1890ff; }
+  .sidebar .menu-group { padding: 8px 0; }
+  .sidebar .menu-group-title { padding: 12px 24px 4px; font-size: 12px; color: rgba(255,255,255,.45); text-transform: uppercase; }
+  .sidebar .menu-item { padding: 10px 24px; cursor: pointer; font-size: 14px; transition: all .2s; display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.65); text-decoration: none; }
+  .sidebar .menu-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+  .sidebar .menu-item.active { background: #1890ff; font-weight: 600; color: #fff; }
+  .sidebar .menu-item .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.5); }
+  .sidebar .menu-item.active .dot { background: #fff; }
+  .sidebar .menu-badge { margin-left: auto; background: #ff4d4f; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 10px; }
+
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { height: 48px; background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; padding: 0 24px; justify-content: space-between; font-size: 13px; color: #666; }
+  .content { flex: 1; padding: 24px; overflow-y: auto; }
+  .breadcrumb { font-size: 13px; color: #999; margin-bottom: 16px; }
+  .breadcrumb a { color: #1890ff; text-decoration: none; }
+  .breadcrumb span { color: #333; }
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .page-header h2 { font-size: 20px; font-weight: 600; }
+  .card { background: #fff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 20px; }
+
+  .search-bar { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+  .search-bar .field { display: flex; flex-direction: column; gap: 4px; }
+  .search-bar label { font-size: 12px; color: #888; }
+  .search-bar input, .search-bar select { height: 32px; padding: 0 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; outline: none; width: 180px; transition: border .2s; }
+  .search-bar input:focus, .search-bar select:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,.15); }
+
+  .btn { height: 32px; padding: 0 16px; border-radius: 4px; font-size: 13px; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; color: #333; display: inline-flex; align-items: center; gap: 6px; transition: all .2s; white-space: nowrap; }
+  .btn:hover { border-color: #1890ff; color: #1890ff; }
+  .btn-primary { background: #1890ff; border-color: #1890ff; color: #fff; }
+  .btn-primary:hover { background: #40a9ff; border-color: #40a9ff; color: #fff; }
+  .btn-sm { height: 26px; padding: 0 10px; font-size: 12px; }
+  .btn-xs { height: 22px; padding: 0 6px; font-size: 11px; }
+  .btn-ghost { border: none; background: transparent; color: #1890ff; padding: 0 8px; }
+
+  .table-wrap { padding: 0 20px 20px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { text-align: left; padding: 10px 8px; background: #fafafa; color: #666; font-weight: 500; border-bottom: 2px solid #f0f0f0; white-space: nowrap; }
+  tbody td { padding: 8px; border-bottom: 1px solid #f0f0f0; }
+  tbody tr:hover { background: #fafafa; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 2px; font-size: 12px; }
+  .tag-blue { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+  .tag-green { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+  .tag-orange { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
+  .tag-default { background: #f5f5f5; color: #999; border: 1px solid #e8e8e8; }
+  .footer { display: flex; justify-content: flex-end; padding: 12px 20px; border-top: 1px solid #f0f0f0; font-size: 13px; color: #666; align-items: center; gap: 12px; }
+
+  /* Tree left panel */
+  .two-col { display: flex; gap: 0; }
+  .tree-panel { width: 260px; flex-shrink: 0; border-right: 1px solid #f0f0f0; padding: 16px 0; overflow-y: auto; min-height: 500px; }
+  .tree-panel .tree-title { font-size: 12px; color: #999; padding: 0 16px 8px; }
+  .tree-node { padding: 6px 16px 6px 16px; cursor: pointer; font-size: 13px; transition: background .15s; display: flex; align-items: center; gap: 6px; }
+  .tree-node:hover { background: #f5f7fa; }
+  .tree-node.active { background: #e6f7ff; color: #1890ff; font-weight: 500; }
+  .tree-node .count { margin-left: auto; font-size: 11px; color: #999; }
+
+  .detail-panel { flex: 1; padding: 20px; overflow-y: auto; }
+  .detail-panel .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .detail-panel .panel-header h4 { font-size: 15px; font-weight: 600; }
+
+  .object-info { background: #fafafa; border-radius: 4px; padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 24px; font-size: 13px; }
+  .object-info .info-item { display: flex; gap: 4px; }
+  .object-info .info-label { color: #888; }
+
+  /* Drawer */
+  .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity .3s, visibility .3s; }
+  .drawer-overlay.show { opacity: 1; visibility: visible; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 650px; background: #fff; box-shadow: -6px 0 20px rgba(0,0,0,.12); z-index: 1001; display: flex; flex-direction: column; transform: translateX(100%); transition: transform .3s; }
+  .drawer-overlay.show .drawer { transform: translateX(0); }
+  .drawer-header { padding: 16px 24px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+  .drawer-header h3 { font-size: 16px; font-weight: 600; }
+  .drawer-close { width: 28px; height: 28px; border: none; background: transparent; font-size: 18px; cursor: pointer; color: #999; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+  .drawer-close:hover { background: #f5f5f5; color: #333; }
+  .drawer-body { flex: 1; padding: 24px; overflow-y: auto; }
+  .drawer-footer { padding: 12px 24px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 8px; flex-shrink: 0; }
+
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 13px; color: #333; margin-bottom: 4px; font-weight: 500; }
+  .form-group label .required { color: #ff4d4f; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; height: 34px; padding: 0 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; outline: none; }
+  .form-group textarea { height: 80px; padding: 8px 10px; resize: vertical; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,.15); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .note-badge { display: inline-block; padding: 1px 6px; background: #fff7e6; color: #ad6800; font-size: 11px; border-radius: 2px; margin-left: 4px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo">LIMS<span>系统</span></div>
+    <div class="menu-group">
+      <div class="menu-group-title">商务阶段</div>
+      <a href="客户管理.html" class="menu-item"><span class="dot"></span>客户管理</a>
+      <a href="委托单管理.html" class="menu-item"><span class="dot"></span>委托单管理</a>
+      <a href="合同管理.html" class="menu-item"><span class="dot"></span>合同管理</a>
+    </div>
+    <div class="menu-group">
+      <div class="menu-group-title">基础业务信息管理</div>
+      <a href="合同模板管理.html" class="menu-item"><span class="dot"></span>合同模板管理</a>
+      <a href="价格管理.html" class="menu-item"><span class="dot"></span>价格管理</a>
+      <a href="CMA资质项管理.html" class="menu-item"><span class="dot"></span>CMA资质项管理</a>
+      <a href="CNAS资质项管理.html" class="menu-item active"><span class="dot"></span>CNAS资质项管理</a>
+      <a href="国家能力库.html" class="menu-item"><span class="dot"></span>国家能力库</a>
+    </div>
+    <div class="menu-group">
+      <div class="menu-group-title">流程引擎</div>
+      <a href="流程引擎-待办列表.html" class="menu-item"><span class="dot"></span>待办任务<span class="menu-badge">8</span></a>
+      <a href="流程引擎-已办列表.html" class="menu-item"><span class="dot"></span>已办任务</a>
+    </div>
+  </div>
+  <div class="main">
+    <div class="topbar"><span>商务阶段</span><span>内勤部 · 李婷</span></div>
+    <div class="content">
+      <div class="breadcrumb"><a href="#">首页</a> &gt; <span>CNAS资质项管理</span></div>
+      <div class="page-header">
+        <h2>CNAS资质项管理</h2>
+        <span style="font-size:12px;color:#999;">ISO/IEC 17025 认可证书 — 注册号: CNAS L25088</span>
+      </div>
+
+      <div class="card">
+        <div class="search-bar">
+          <div class="field"><label>检测项目/参数</label><input type="text" placeholder="输入关键字" id="searchName" oninput="filterItems()"></div>
+          <div class="field"><label>标准编号</label><input type="text" placeholder="如 GB 36246" id="searchStd" oninput="filterItems()"></div>
+          <button class="btn btn-primary" onclick="filterItems()">查询</button>
+          <button class="btn" onclick="resetFilter()">重置</button>
+        </div>
+        <div class="two-col">
+          <!-- Left: 检测对象 list -->
+          <div class="tree-panel">
+            <div class="tree-title">检测对象分类</div>
+            <div id="cnasTree"></div>
+          </div>
+          <!-- Right: 项目/参数 table -->
+          <div class="detail-panel">
+            <div class="panel-header">
+              <h4 id="panelTitle">全部检测项目/参数</h4>
+              <div style="display:flex;gap:8px;">
+                <button class="btn btn-sm" onclick="exportCNASData()">导出</button>
+                <button class="btn btn-sm" onclick="downloadCNASTemplate()">模板下载</button>
+                <button class="btn btn-sm" onclick="document.getElementById('cnasImportFile').click()">导入数据</button>
+                <input type="file" id="cnasImportFile" accept=".csv,.xlsx" style="display:none;" onchange="handleCNASImport(this)">
+                <button class="btn btn-sm btn-primary" onclick="openItemDrawer()">+ 新增项目</button>
+              </div>
+            </div>
+            <div class="object-info" id="objectSummary" style="display:none;">
+              <div class="info-item"><span class="info-label">注册号：</span>CNAS L25088</div>
+              <div class="info-item"><span class="info-label">项目数：</span><strong id="objItemCount">0</strong></div>
+              <div class="info-item"><span class="info-label">认可依据：</span>ISO/IEC 17025:2017</div>
+              <div class="info-item"><span class="info-label">生效日期：</span>2026-01-20</div>
+            </div>
+            <div class="table-wrap" style="padding:0;">
+              <table>
+                <thead><tr>
+                  <th style="width:4%;">序号</th>
+                  <th style="width:20%;">项目/参数名称</th>
+                  <th style="width:42%;">检测标准（方法）</th>
+                  <th style="width:14%;">说明</th>
+                  <th style="width:10%;">状态</th>
+                  <th style="width:10%;">操作</th>
+                </tr></thead>
+                <tbody id="itemTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Item Edit Drawer -->
+<div class="drawer-overlay" id="itemDrawer">
+  <div class="drawer">
+    <div class="drawer-header">
+      <h3 id="drawerTitle">新增检测项目/参数</h3>
+      <button class="drawer-close" onclick="closeItemDrawer()">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="form-group"><label>所属检测对象 <span class="required">*</span></label>
+        <select id="formObjId"></select></div>
+      <div class="form-row">
+        <div class="form-group"><label>项目序号</label><input type="text" id="formItemNo" placeholder="如 5"></div>
+        <div class="form-group"><label>生效日期</label><input type="date" id="formEffDate" value="2026-01-20"></div>
+      </div>
+      <div class="form-group"><label>项目/参数名称 <span class="required">*</span></label><input type="text" id="formItemName" placeholder="如：冲击吸收"></div>
+      <div class="form-group"><label>检测标准（方法）</label><textarea id="formStd" placeholder="如：合成材料运动场地面层 GB/T 14833-2020 附录 B"></textarea></div>
+      <div class="form-group"><label>说明</label><input type="text" id="formNote" placeholder="如：只测气相色谱-质谱法 / 本标准过期但被引用"></div>
+    </div>
+    <div class="drawer-footer">
+      <button class="btn" onclick="closeItemDrawer()">取消</button>
+      <button class="btn btn-primary" onclick="saveItem()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ Mock Data ============
+// 检测对象 (based on CNAS L25088 recognition scope)
+const cnasObjects = [
+  { id:'obj01', name:'中小学合成材料面层', seq:'1' },
+  { id:'obj02', name:'合成材料运动场地面层', seq:'2' },
+  { id:'obj03', name:'田径场地', seq:'3' },
+  { id:'obj04', name:'合成面层篮球场地', seq:'4' },
+  { id:'obj05', name:'人造草足球场地', seq:'5' },
+  { id:'obj06', name:'网球场地面层', seq:'6' },
+  { id:'obj07', name:'合成面层排球场地面层', seq:'7' },
+  { id:'obj08', name:'体育场馆照明', seq:'8' },
+  { id:'obj09', name:'网球场地', seq:'9' },
+  { id:'obj10', name:'体育场馆木地板', seq:'10' },
+];
+
+// 检测项目/参数 (referencing real data from the CNAS recognition annex)
+const cnasItems = [
+  // 中小学合成材料面层
+  { id:'c001', obj_id:'obj01', item_no:'1', name:'厚度', std:'中小学合成材料面层运动场地 GB 36246-2018 附录 A', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c002', obj_id:'obj01', item_no:'2', name:'冲击吸收', std:'中小学合成材料面层运动场地 GB 36246-2018 附录 B', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c003', obj_id:'obj01', item_no:'3', name:'垂直变形', std:'中小学合成材料面层运动场地 GB 36246-2018 附录 C', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c004', obj_id:'obj01', item_no:'4', name:'抗滑值', std:'中小学合成材料面层运动场地 GB 36246-2018 附录 D', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c005', obj_id:'obj01', item_no:'5', name:'拉伸强度', std:'中小学合成材料面层运动场地 GB 36246-2018 附录 E', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c006', obj_id:'obj01', item_no:'6', name:'拉断伸长率', std:'中小学合成材料面层运动场地 GB 36246-2018 附录 E', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c007', obj_id:'obj01', item_no:'7', name:'阻燃性', std:'中小学合成材料面层运动场地 GB 36246-2018 6.15.1', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c008', obj_id:'obj01', item_no:'14', name:'3,3-二氯-4,4-二氨基二苯基甲烷', std:'中小学合成材料面层运动场地 GB 36246-2018 附录 F', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c009', obj_id:'obj01', item_no:'16', name:'短链氯化石蜡', std:'中小学合成材料面层运动场地 GB 36246-2018 附录 G', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c010', obj_id:'obj01', item_no:'17', name:'4,4-二氨基-3,3-二氯二苯甲烷(MOCA)', std:'中小学合成材料面层运动场地 GB 36246-2018 附录 H', note:'只测：气相色谱-质谱法', eff_date:'2026-01-20', status:'有效' },
+  { id:'c011', obj_id:'obj01', item_no:'18', name:'游离甲苯二异氰酸酯(TDI)和游离六亚甲基二异氰酸酯(HDI)总和', std:'色漆和清漆用漆基异氰酸酯树脂中二异氰酸酯单体的测定 GB/T 18446-2009', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c012', obj_id:'obj01', item_no:'20', name:'可溶性铅', std:'涂料中可溶性有害元素含量的测定 GB/T 23991-2009', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c013', obj_id:'obj01', item_no:'21', name:'可溶性镉', std:'涂料中可溶性有害元素含量的测定 GB/T 23991-2009', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c014', obj_id:'obj01', item_no:'24', name:'气味等级', std:'中小学合成材料面层运动场地 GB 36246-2018 附录 J', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c015', obj_id:'obj01', item_no:'25', name:'挥发性有机化合物', std:'中小学合成材料面层运动场地 GB 36246-2018 6.15.6 / 色漆和清漆VOC含量测定 气相色谱法 GB/T 23986-2009', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c016', obj_id:'obj01', item_no:'26', name:'游离甲醛', std:'室内装饰装修材料胶粘剂中有害物质限量 GB 18583-2008 附录 A', note:'本标准过期，但被现行产品标准 GB 36246-2018 引用。', eff_date:'2026-01-20', status:'有效' },
+  // 合成材料运动场地面层
+  { id:'c017', obj_id:'obj02', item_no:'1', name:'厚度', std:'合成材料运动场地面层 GB/T 14833-2020 6.2', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c018', obj_id:'obj02', item_no:'2', name:'冲击吸收', std:'合成材料运动场地面层 GB/T 14833-2020 附录 B', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c019', obj_id:'obj02', item_no:'3', name:'垂直变形', std:'合成材料运动场地面层 GB/T 14833-2020 附录 C', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c020', obj_id:'obj02', item_no:'4', name:'抗滑值', std:'合成材料运动场地面层 GB/T 14833-2020 附录 D', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c021', obj_id:'obj02', item_no:'5', name:'拉伸强度', std:'合成材料运动场地面层 GB/T 14833-2020 6.6 / 高聚物多孔弹性材料拉伸强度和拉断伸长率的测定 GB/T 10654-2001', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c022', obj_id:'obj02', item_no:'6', name:'拉断伸长率', std:'合成材料运动场地面层 GB/T 14833-2020 6.6 / 高聚物多孔弹性材料拉伸强度和拉断伸长率的测定 GB/T 10654-2001', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c023', obj_id:'obj02', item_no:'7', name:'阻燃性', std:'合成材料运动场地面层 GB/T 14833-2020 附录 E', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c024', obj_id:'obj02', item_no:'9', name:'撕裂强度', std:'合成材料运动场地面层 GB/T 14833-2020 6.7 / 硫化橡胶和热塑性橡胶撕裂强度的测定 GB/T 529-2008', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c025', obj_id:'obj02', item_no:'10', name:'耐磨性(未老化)', std:'合成材料运动场地面层 GB/T 14833-2020 6.10 / 橡胶和塑料涂覆织物耐磨性的测定泰伯法 GB/T 30314-2021', note:'', eff_date:'2026-01-20', status:'有效' },
+  // 田径场地
+  { id:'c026', obj_id:'obj03', item_no:'1', name:'面层外观', std:'体育场地使用要求及检验方法第6部分：田径场地 GB/T 22517.6-2020 6.1.1', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c027', obj_id:'obj03', item_no:'2', name:'面层厚度', std:'体育场地使用要求及检验方法第6部分：田径场地 GB/T 22517.6-2020 6.1.2', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c028', obj_id:'obj03', item_no:'3', name:'面层平整度', std:'体育场地使用要求及检验方法第6部分：田径场地 GB/T 22517.6-2020 6.1.3', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c029', obj_id:'obj03', item_no:'4', name:'面层坡度', std:'体育场地使用要求及检验方法第6部分：田径场地 GB/T 22517.6-2020 6.1.4', note:'', eff_date:'2026-01-20', status:'有效' },
+  // 合成面层篮球场地
+  { id:'c030', obj_id:'obj04', item_no:'1', name:'平整度', std:'体育场地使用要求及检验方法 第4部分：合成面层篮球场地 GB/T 22517.4-2017', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c031', obj_id:'obj04', item_no:'2', name:'坡度', std:'体育场地使用要求及检验方法 第4部分 GB/T 22517.4-2017', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c032', obj_id:'obj04', item_no:'3', name:'厚度', std:'体育场地使用要求及检验方法 第4部分 GB/T 22517.4-2017', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c033', obj_id:'obj04', item_no:'4', name:'冲击吸收', std:'体育场地使用要求及检验方法 第4部分 GB/T 22517.4-2017', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c034', obj_id:'obj04', item_no:'5', name:'垂直变形', std:'体育场地使用要求及检验方法 第4部分 GB/T 22517.4-2017', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c035', obj_id:'obj04', item_no:'6', name:'拉伸强度', std:'体育场地使用要求及检验方法 第4部分 GB/T 22517.4-2017', note:'', eff_date:'2026-01-20', status:'有效' },
+  // 网球场地
+  { id:'c036', obj_id:'obj09', item_no:'1', name:'平整度', std:'体育场地使用要求及检验方法 第7部分：网球场地 GB/T 22517.7-2018', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c037', obj_id:'obj09', item_no:'2', name:'坡度', std:'体育场地使用要求及检验方法 第7部分 GB/T 22517.7-2018', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c038', obj_id:'obj09', item_no:'3', name:'滑动性能', std:'体育场地使用要求及检验方法 第7部分 GB/T 22517.7-2018', note:'', eff_date:'2026-01-20', status:'有效' },
+  // 人造草足球场地
+  { id:'c039', obj_id:'obj05', item_no:'1', name:'外观', std:'体育场地使用要求及检验方法 第2部分：足球场地 GB/T 22517.2-2020', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c040', obj_id:'obj05', item_no:'2', name:'草簇密度', std:'体育场地使用要求及检验方法 第2部分 GB/T 22517.2-2020', note:'能做：纵向密度、横向密度', eff_date:'2026-01-20', status:'有效' },
+  { id:'c041', obj_id:'obj05', item_no:'3', name:'草丝高度', std:'体育场地使用要求及检验方法 第2部分 GB/T 22517.2-2020', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c042', obj_id:'obj05', item_no:'4', name:'草丝拉断力', std:'体育场地使用要求及检验方法 第2部分 GB/T 22517.2-2020', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c043', obj_id:'obj05', item_no:'6', name:'渗水性(充砂前)', std:'体育场地使用要求及检验方法 第2部分 GB/T 22517.2-2020', note:'', eff_date:'2026-01-20', status:'有效' },
+  // 体育场馆照明
+  { id:'c044', obj_id:'obj08', item_no:'1', name:'照明', std:'体育场馆照明设计及检测标准 JGJ 153-2016', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c045', obj_id:'obj08', item_no:'2', name:'照度', std:'体育场馆照明设计及检测标准 JGJ 153-2016', note:'', eff_date:'2026-01-20', status:'有效' },
+  // 体育场馆木地板
+  { id:'c046', obj_id:'obj10', item_no:'1', name:'平整度', std:'体育馆用木质地板 GB/T 20239-2023', note:'', eff_date:'2026-01-20', status:'有效' },
+  { id:'c047', obj_id:'obj10', item_no:'2', name:'滑动摩擦系数', std:'体育馆用木质地板 GB/T 20239-2023', note:'', eff_date:'2026-01-20', status:'有效' },
+];
+
+// ============ State ============
+let selectedObjId = null;
+let editingItemId = null;
+
+// ============ Init ============
+function init() {
+  renderTree();
+  renderItems();
+}
+init();
+
+function renderTree() {
+  const container = document.getElementById('cnasTree');
+  let html = `<div class="tree-node ${selectedObjId===null?'active':''}" onclick="selectObject(null)"><span style="font-size:10px;">📋</span>全部检测对象<span class="count">${cnasItems.length}</span></div>`;
+
+  // Group header: 一、高分子及复合材料
+  html += `<div style="font-size:12px;color:#888;padding:8px 16px 4px;font-weight:500;">一、高分子及复合材料</div>`;
+  cnasObjects.forEach(obj => {
+    const count = cnasItems.filter(it => it.obj_id===obj.id).length;
+    if (count > 0) {
+      html += `<div class="tree-node ${selectedObjId===obj.id?'active':''}" onclick="selectObject('${obj.id}')"><span style="font-size:10px;color:#999;">${obj.seq}.</span>${obj.name}<span class="count">${count}</span></div>`;
+    }
+  });
+  container.innerHTML = html;
+}
+
+function selectObject(objId) {
+  selectedObjId = objId;
+  renderTree();
+  renderItems();
+}
+
+function getDisplayItems() {
+  let items = cnasItems;
+  // Filter by object
+  if (selectedObjId) {
+    items = items.filter(it => it.obj_id === selectedObjId);
+  }
+  // Search filter
+  const sn = (document.getElementById('searchName')?.value||'').trim().toLowerCase();
+  const ss = (document.getElementById('searchStd')?.value||'').trim().toLowerCase();
+  if (sn) items = items.filter(it => it.name.toLowerCase().includes(sn));
+  if (ss) items = items.filter(it => it.std.toLowerCase().includes(ss));
+  return items;
+}
+
+function filterItems() { renderItems(); }
+function resetFilter() { document.getElementById('searchName').value = ''; document.getElementById('searchStd').value = ''; renderItems(); }
+
+function renderItems() {
+  const items = getDisplayItems();
+  // Panel title
+  let title = '全部检测项目/参数';
+  if (selectedObjId) {
+    const obj = cnasObjects.find(o => o.id === selectedObjId);
+    if (obj) title = obj.name + ' — 检测项目/参数';
+  }
+  document.getElementById('panelTitle').textContent = title;
+  document.getElementById('objItemCount').textContent = items.length;
+  document.getElementById('objectSummary').style.display = selectedObjId ? 'flex' : 'none';
+
+  let html = '';
+  if (items.length === 0) {
+    html = '<tr><td colspan="6" style="text-align:center;padding:32px;color:#ccc;">暂无匹配的检测项目/参数</td></tr>';
+  } else {
+    items.forEach(it => {
+      const obj = cnasObjects.find(o => o.id === it.obj_id);
+      const statusTag = it.status==='有效' ? '<span class="tag tag-green">有效</span>' : '<span class="tag tag-default">过期</span>';
+      const noteHtml = it.note ? `<span class="note-badge">${esc(it.note)}</span>` : '—';
+      html += `<tr>
+        <td>${it.item_no||'—'}</td>
+        <td>${esc(it.name)}</td>
+        <td style="font-size:11px;color:#666;">${esc(it.std)}</td>
+        <td style="font-size:11px;">${noteHtml}</td>
+        <td>${statusTag}</td>
+        <td>
+          <button class="btn btn-ghost btn-xs" onclick="openItemDrawer('${it.id}')">编辑</button>
+        </td>
+      </tr>`;
+    });
+  }
+  document.getElementById('itemTableBody').innerHTML = html;
+}
+
+// ============ Item Drawer ============
+function openItemDrawer(itemId) {
+  editingItemId = itemId || null;
+  document.getElementById('drawerTitle').textContent = itemId ? '编辑检测项目/参数' : '新增检测项目/参数';
+
+  // Populate object dropdown
+  let opts = '';
+  cnasObjects.forEach(obj => {
+    opts += `<option value="${obj.id}">${obj.seq}. ${obj.name}</option>`;
+  });
+  document.getElementById('formObjId').innerHTML = opts;
+
+  if (itemId) {
+    const it = cnasItems.find(x => x.id === itemId);
+    if (it) {
+      document.getElementById('formObjId').value = it.obj_id;
+      document.getElementById('formItemNo').value = it.item_no||'';
+      document.getElementById('formItemName').value = it.name;
+      document.getElementById('formStd').value = it.std;
+      document.getElementById('formNote').value = it.note||'';
+      document.getElementById('formEffDate').value = it.eff_date||'2026-01-20';
+    }
+  } else {
+    document.getElementById('formObjId').value = selectedObjId || '';
+    document.getElementById('formItemNo').value = '';
+    document.getElementById('formItemName').value = '';
+    document.getElementById('formStd').value = '';
+    document.getElementById('formNote').value = '';
+    document.getElementById('formEffDate').value = '2026-01-20';
+  }
+  document.getElementById('itemDrawer').classList.add('show');
+}
+
+function closeItemDrawer() {
+  document.getElementById('itemDrawer').classList.remove('show');
+  editingItemId = null;
+}
+
+function saveItem() {
+  const name = document.getElementById('formItemName').value.trim();
+  const objId = document.getElementById('formObjId').value;
+  if (!name || !objId) { alert('请填写项目名称并选择检测对象'); return; }
+
+  const data = {
+    obj_id: objId,
+    item_no: document.getElementById('formItemNo').value.trim(),
+    name: name,
+    std: document.getElementById('formStd').value.trim(),
+    note: document.getElementById('formNote').value.trim(),
+    eff_date: document.getElementById('formEffDate').value,
+    status: '有效'
+  };
+
+  if (editingItemId) {
+    const idx = cnasItems.findIndex(x => x.id === editingItemId);
+    if (idx >= 0) { cnasItems[idx] = { ...cnasItems[idx], ...data }; }
+  } else {
+    data.id = 'c' + String(Math.floor(Math.random()*90000+10000));
+    cnasItems.push(data);
+  }
+
+  closeItemDrawer();
+  renderTree();
+  renderItems();
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// ============ Export / Import ============
+function exportCNASData() {
+  var items = getDisplayItems();
+  var now = new Date().toISOString().slice(0,10);
+  var header = '\uFEFF序号,所属检测对象,项目/参数名称,检测标准（方法）,说明,生效日期,状态';
+  var rows = items.map(function(it, i) {
+    var obj = cnasObjects.find(function(o) { return o.id === it.obj_id; });
+    return [(i+1), obj?obj.name:'', it.name, it.std, it.note||'', it.eff_date||'', it.status].map(csvCell).join(',');
+  });
+  var csv = header + '\n' + rows.join('\n');
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'CNAS资质项_' + now + '.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+function downloadCNASTemplate() {
+  var header = '\uFEFF所属检测对象,项目序号,项目/参数名称,检测标准（方法）,说明,生效日期,状态';
+  var sample = '中小学合成材料面层,1,厚度,GB 36246-2018 附录 A,,2026-01-20,有效';
+  var csv = header + '\n' + sample;
+  var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'CNAS资质项导入模板.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+function handleCNASImport(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var text = e.target.result;
+    var lines = text.split(/\r?\n/).filter(function(l) { return l.trim(); });
+    if (lines.length < 2) { alert('文件无有效数据行'); input.value = ''; return; }
+    var added = 0;
+    for (var i = 1; i < lines.length; i++) {
+      var cols = parseCSVLine(lines[i]);
+      if (cols.length < 3) continue;
+      var objName = (cols[0]||'').trim();
+      var itemNo = (cols[1]||'').trim();
+      var itemName = (cols[2]||'').trim();
+      var std = (cols[3]||'').trim();
+      var note = (cols[4]||'').trim();
+      var effDate = (cols[5]||'').trim() || '2026-01-20';
+      if (!itemName) continue;
+      var obj = cnasObjects.find(function(o) { return o.name === objName; });
+      var newId = 'c' + String(cnasItems.length + 100).slice(1);
+      cnasItems.push({
+        id: newId,
+        obj_id: obj ? obj.id : 'obj01',
+        item_no: itemNo || String(cnasItems.length + 1),
+        name: itemName,
+        std: std,
+        note: note,
+        eff_date: effDate,
+        status: '有效'
+      });
+      added++;
+    }
+    if (added > 0) {
+      renderTree();
+      renderItems();
+      alert('成功导入 ' + added + ' 条记录');
+    }
+    input.value = '';
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+function csvCell(val) { var s = String(val==null?'':val); return /[,\n"]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; }
+function parseCSVLine(line) {
+  var result = [], current = '', inQuotes = false;
+  for (var i = 0; i < line.length; i++) {
+    var ch = line[i];
+    if (inQuotes) {
+      if (ch === '"') { if (line[i+1]==='"') { current += '"'; i++; } else inQuotes = false; }
+      else current += ch;
+    } else {
+      if (ch === '"') inQuotes = true;
+      else if (ch === ',') { result.push(current); current = ''; }
+      else current += ch;
+    }
+  }
+  result.push(current);
+  return result;
+}
+</script>
+</body>
+</html>

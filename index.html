@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIMS 商务阶段 - 原型演示</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:#f0f2f5;min-height:100vh;}
+.header{background:#fff;padding:20px 40px;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+.header h1{font-size:20px;color:#1a1a1a;font-weight:600;}
+.header p{font-size:13px;color:#999;margin-top:4px;}
+.container{max-width:1100px;margin:32px auto;padding:0 20px;}
+.group{margin-bottom:24px;}
+.group-title{font-size:16px;font-weight:600;color:#333;margin-bottom:12px;padding-left:12px;border-left:3px solid #1890ff;}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.card{display:block;background:#fff;padding:18px 20px;border-radius:6px;text-decoration:none;color:#333;box-shadow:0 1px 3px rgba(0,0,0,.06);transition:all .2s;}
+.card:hover{box-shadow:0 3px 12px rgba(0,0,0,.10);transform:translateY(-1px);}
+.card .name{font-size:15px;font-weight:500;color:#1890ff;margin-bottom:4px;}
+.card .desc{font-size:12px;color:#999;}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>LIMS 实验室信息管理系统 — 商务阶段原型</h1>
+  <p>V1.0 · 2026-06-24 · 最后更新：委托单状态机重构</p>
+</div>
+<div class="container">
+
+  <div class="group">
+    <div class="group-title">商务阶段</div>
+    <div class="cards">
+      <a class="card" href="客户管理.html"><div class="name">客户管理</div><div class="desc">客户信息、联系人管理</div></a>
+      <a class="card" href="委托单管理.html"><div class="name">委托单管理</div><div class="desc">委托单列表、状态流转</div></a>
+      <a class="card" href="委托单新建.html"><div class="name">委托单新建</div><div class="desc">创建委托单、配置检测项目</div></a>
+      <a class="card" href="合同管理.html"><div class="name">合同管理</div><div class="desc">合同列表、详情</div></a>
+      <a class="card" href="合同新建.html"><div class="name">合同新建</div><div class="desc">协议制作、合同生成</div></a>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">基础业务信息管理</div>
+    <div class="cards">
+      <a class="card" href="合同模板管理.html"><div class="name">合同模板管理</div><div class="desc">5类合同模板</div></a>
+      <a class="card" href="价格管理.html"><div class="name">价格管理</div><div class="desc">检测项目定价、打包价</div></a>
+      <a class="card" href="CMA资质项管理.html"><div class="name">CMA资质项管理</div><div class="desc">CMA资质库维护</div></a>
+      <a class="card" href="CNAS资质项管理.html"><div class="name">CNAS资质项管理</div><div class="desc">CNAS资质库维护</div></a>
+      <a class="card" href="国家能力库.html"><div class="name">国家能力库</div><div class="desc">能力项目库查询</div></a>
+    </div>
+  </div>
+
+  <div class="group">
+    <div class="group-title">流程引擎</div>
+    <div class="cards">
+      <a class="card" href="流程引擎-待办列表.html"><div class="name">待办任务</div><div class="desc">流程待办列表</div></a>
+      <a class="card" href="流程引擎-已办列表.html"><div class="name">已办任务</div><div class="desc">流程已办列表</div></a>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

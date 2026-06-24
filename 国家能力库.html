@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>国家能力库 - LIMS 商务阶段</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: #f0f2f5; color: #333; }
+  .app { display: flex; min-height: 100vh; }
+
+  .sidebar { width: 220px; background: #001529; color: #fff; flex-shrink: 0; }
+  .sidebar .logo { padding: 20px; font-size: 18px; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,.1); letter-spacing: 1px; }
+  .sidebar .logo span { color: #1890ff; }
+  .sidebar .menu-group { padding: 8px 0; }
+  .sidebar .menu-group-title { padding: 12px 24px 4px; font-size: 12px; color: rgba(255,255,255,.45); text-transform: uppercase; }
+  .sidebar .menu-item { padding: 10px 24px; cursor: pointer; font-size: 14px; transition: all .2s; display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.65); text-decoration: none; }
+  .sidebar .menu-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+  .sidebar .menu-item.active { background: #1890ff; font-weight: 600; color: #fff; }
+  .sidebar .menu-item .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.5); }
+  .sidebar .menu-item.active .dot { background: #fff; }
+  .sidebar .menu-badge { margin-left: auto; background: #ff4d4f; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 10px; }
+
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { height: 48px; background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; padding: 0 24px; justify-content: space-between; font-size: 13px; color: #666; }
+  .content { flex: 1; padding: 24px; overflow-y: auto; }
+  .breadcrumb { font-size: 13px; color: #999; margin-bottom: 16px; }
+  .breadcrumb a { color: #1890ff; text-decoration: none; }
+  .breadcrumb span { color: #333; }
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .page-header h2 { font-size: 20px; font-weight: 600; }
+  .card { background: #fff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 20px; }
+
+  .search-bar { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+  .search-bar .field { display: flex; flex-direction: column; gap: 4px; }
+  .search-bar label { font-size: 12px; color: #888; }
+  .search-bar input, .search-bar select { height: 32px; padding: 0 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; outline: none; width: 200px; transition: border .2s; }
+  .search-bar input:focus, .search-bar select:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,.15); }
+
+  .btn { height: 32px; padding: 0 16px; border-radius: 4px; font-size: 13px; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; color: #333; display: inline-flex; align-items: center; gap: 6px; transition: all .2s; white-space: nowrap; }
+  .btn:hover { border-color: #1890ff; color: #1890ff; }
+  .btn-primary { background: #1890ff; border-color: #1890ff; color: #fff; }
+  .btn-primary:hover { background: #40a9ff; border-color: #40a9ff; color: #fff; }
+  .btn-sm { height: 26px; padding: 0 10px; font-size: 12px; }
+  .btn-xs { height: 22px; padding: 0 6px; font-size: 11px; }
+
+  .table-wrap { padding: 0 20px 20px; overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { text-align: left; padding: 10px 8px; background: #fafafa; color: #666; font-weight: 500; border-bottom: 2px solid #f0f0f0; white-space: nowrap; }
+  tbody td { padding: 8px; border-bottom: 1px solid #f0f0f0; }
+  tbody tr:hover { background: #fafafa; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 2px; font-size: 12px; }
+  .tag-green { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+  .tag-orange { background: #fff7e6; color: #fa8c16; border: 1px solid #ffd591; }
+  .tag-default { background: #f5f5f5; color: #999; border: 1px solid #e8e8e8; }
+  .footer { display: flex; justify-content: space-between; padding: 12px 20px; border-top: 1px solid #f0f0f0; font-size: 13px; color: #666; align-items: center; }
+
+  .two-col { display: flex; gap: 0; }
+  .tree-panel { width: 240px; flex-shrink: 0; border-right: 1px solid #f0f0f0; padding: 16px 0; overflow-y: auto; min-height: 500px; }
+  .tree-panel .tree-title { font-size: 12px; color: #999; padding: 0 16px 8px; }
+  .tree-node { padding: 6px 16px 6px 16px; cursor: pointer; font-size: 13px; transition: background .15s; display: flex; align-items: center; gap: 6px; }
+  .tree-node:hover { background: #f5f7fa; }
+  .tree-node.active { background: #e6f7ff; color: #1890ff; font-weight: 500; }
+  .tree-node .count { margin-left: auto; font-size: 11px; color: #999; }
+
+  .detail-panel { flex: 1; padding: 20px; overflow-y: auto; }
+  .detail-panel .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .detail-panel .panel-header h4 { font-size: 15px; font-weight: 600; }
+
+  .domain-info { background: #fafafa; border-radius: 4px; padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 24px; font-size: 13px; }
+  .domain-info .info-item { display: flex; gap: 4px; }
+  .domain-info .info-label { color: #888; }
+
+  .note-tooltip { display: inline-block; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: default; font-size: 11px; color: #999; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo">LIMS<span>系统</span></div>
+    <div class="menu-group">
+      <div class="menu-group-title">商务阶段</div>
+      <a href="客户管理.html" class="menu-item"><span class="dot"></span>客户管理</a>
+      <a href="委托单管理.html" class="menu-item"><span class="dot"></span>委托单管理</a>
+      <a href="合同管理.html" class="menu-item"><span class="dot"></span>合同管理</a>
+    </div>
+    <div class="menu-group">
+      <div class="menu-group-title">基础业务信息管理</div>
+      <a href="合同模板管理.html" class="menu-item"><span class="dot"></span>合同模板管理</a>
+      <a href="价格管理.html" class="menu-item"><span class="dot"></span>价格管理</a>
+      <a href="CMA资质项管理.html" class="menu-item"><span class="dot"></span>CMA资质项管理</a>
+      <a href="CNAS资质项管理.html" class="menu-item"><span class="dot"></span>CNAS资质项管理</a>
+      <div class="menu-item active"><span class="dot"></span>国家能力库</div>
+    </div>
+    <div class="menu-group">
+      <div class="menu-group-title">流程引擎</div>
+      <a href="流程引擎-待办列表.html" class="menu-item"><span class="dot"></span>待办任务<span class="menu-badge">8</span></a>
+      <a href="流程引擎-已办列表.html" class="menu-item"><span class="dot"></span>已办任务</a>
+    </div>
+  </div>
+  <div class="main">
+    <div class="topbar"><span>商务阶段</span><span>内勤部 · 李婷</span></div>
+    <div class="content">
+      <div class="breadcrumb"><a href="#">首页</a> &gt; <span>国家能力库</span></div>
+      <div class="page-header">
+        <h2>国家能力库</h2>
+        <span style="font-size:12px;color:#999;">认监委统一能力项目库 | 数据来源：CNCA能力库全量标准</span>
+      </div>
+
+      <div class="card">
+        <div class="search-bar">
+          <div class="field"><label>标准名称</label><input type="text" placeholder="输入关键字" id="searchName" oninput="filterItems()"></div>
+          <div class="field"><label>标准编号</label><input type="text" placeholder="如 GB 36246" id="searchStd" oninput="filterItems()"></div>
+          <button class="btn btn-primary" onclick="filterItems()">查询</button>
+          <button class="btn" onclick="resetFilter()">重置</button>
+        </div>
+        <div class="two-col">
+          <!-- Left: 领域分类 -->
+          <div class="tree-panel">
+            <div class="tree-title">领域分类</div>
+            <div id="domainTree"></div>
+          </div>
+          <!-- Right: 标准列表 -->
+          <div class="detail-panel">
+            <div class="panel-header">
+              <h4 id="panelTitle">全部标准</h4>
+            </div>
+            <div class="domain-info" id="domainSummary" style="display:none;">
+              <div class="info-item"><span class="info-label">数据总量：</span><strong id="domainItemCount">0</strong> 条</div>
+              <div class="info-item"><span class="info-label">来源：</span>认监委国家能力项目库</div>
+              <div class="info-item"><span class="info-label">更新日期：</span>2026-06-23</div>
+            </div>
+            <div class="table-wrap" style="padding:0;">
+              <table>
+                <thead><tr>
+                  <th style="width:5%;">序号</th>
+                  <th style="width:40%;">标准（方法）名称</th>
+                  <th style="width:22%;">标准编号（含年号）</th>
+                  <th style="width:25%;">备注</th>
+                  <th style="width:8%;">状态</th>
+                </tr></thead>
+                <tbody id="itemTableBody"></tbody>
+              </table>
+            </div>
+            <div class="footer">
+              <span>共 <strong id="footerTotal">0</strong> 条记录</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ Mock Data（基于真实xlsx结构抽取） ============
+const nationalCapLib = {
+  '产品质量检验': [
+    {name:'载重汽车轮胎国家标准第1号修改单',code:'GB9744-2024/XG1-2025',remark:''},
+    {name:'载重汽车轮胎',code:'GB9744-2024',remark:''},
+    {name:'载重汽车轮胎',code:'GB9744-2015',remark:'废止，仅限能力项目库范围内现行有效产品标准引用本标准及监督抽检时申请'},
+    {name:'轿车轮胎',code:'GB9743-2024',remark:''},
+    {name:'轿车轮胎',code:'GB9743-2015',remark:'废止，仅限能力项目库范围内现行有效产品标准引用本标准及监督抽检时申请'},
+    {name:'机动车玻璃安全技术规范',code:'GB9656-2021',remark:''},
+    {name:'汽车安全玻璃',code:'GB9656-2003',remark:'废止，仅限能力项目库范围内现行有效产品标准引用本标准及监督抽检时申请'},
+    {name:'螺钉用十字槽',code:'GB944.1-1985',remark:''},
+    {name:'无线电发射设备安全要求',code:'GB9159-2008',remark:''},
+    {name:'稳定轻烃',code:'GB9053-2013',remark:''},
+    {name:'防护服装防电弧服',code:'GB8965.4-2022',remark:''},
+    {name:'建筑材料及制品燃烧性能分级',code:'GB8624-2025',remark:''},
+    {name:'建筑材料及制品燃烧性能分级',code:'GB8624-2012',remark:''},
+    {name:'汽车内饰材料的燃烧特性',code:'GB8410-2006',remark:''},
+    {name:'消防水枪',code:'GB8181-2025',remark:''},
+  ],
+  '食品检验': [
+    {name:'食品安全国家标准食品相对密度的测定',code:'GB5009.2-2024',remark:''},
+    {name:'食品营养强化剂煅烧钙',code:'GB9990-2009',remark:''},
+    {name:'蜂王浆',code:'GB9697-2008',remark:''},
+    {name:'食品安全国家标准食品中水分的测定',code:'GB5009.3-2016',remark:''},
+    {name:'食品安全国家标准食品中灰分的测定',code:'GB5009.4-2016',remark:''},
+    {name:'食品安全国家标准食品中蛋白质的测定',code:'GB5009.5-2016',remark:''},
+    {name:'食品安全国家标准食品中脂肪的测定',code:'GB5009.6-2016',remark:''},
+    {name:'食品安全国家标准食品中还原糖的测定',code:'GB5009.7-2016',remark:''},
+    {name:'食品安全国家标准食品中铅的测定',code:'GB5009.12-2017',remark:''},
+    {name:'食品安全国家标准食品中镉的测定',code:'GB5009.15-2014',remark:''},
+  ],
+  '生态环境监测': [
+    {name:'环境空气挥发性有机物的测定吸附管采样-热脱附/气相色谱-质谱法',code:'HJ 644-2013',remark:''},
+    {name:'水质挥发性有机物的测定吹扫捕集/气相色谱-质谱法',code:'HJ 639-2012',remark:''},
+    {name:'土壤和沉积物挥发性有机物的测定吹扫捕集/气相色谱-质谱法',code:'HJ 605-2011',remark:''},
+    {name:'环境空气苯系物的测定活性炭吸附/二硫化碳解吸-气相色谱法',code:'HJ 584-2010',remark:''},
+    {name:'水质氨氮的测定纳氏试剂分光光度法',code:'HJ 535-2009',remark:''},
+    {name:'水质pH值的测定电极法',code:'HJ 1147-2020',remark:''},
+    {name:'固定污染源废气二氧化硫的测定非分散红外吸收法',code:'HJ 629-2011',remark:''},
+    {name:'环境空气PM10和PM2.5的测定重量法',code:'HJ 618-2011',remark:''},
+    {name:'土壤pH值的测定电位法',code:'HJ 962-2018',remark:''},
+    {name:'水质化学需氧量的测定重铬酸盐法',code:'HJ 828-2017',remark:''},
+  ],
+  '农产品质量检验': [
+    {name:'饲料添加剂维生素D3(微粒)',code:'GB9840-2017',remark:''},
+    {name:'食品安全国家标准食品接触材料及制品用添加剂使用标准',code:'GB9685-2016',remark:''},
+    {name:'饲料添加剂DL-α-生育酚乙酸酯',code:'GB9454-2017',remark:''},
+    {name:'饲料添加剂维生素A乙酸酯微粒',code:'GB7292-2017',remark:''},
+    {name:'饲料添加剂氯化胆碱',code:'GB34462-2017',remark:''},
+    {name:'饲料添加剂硫酸锌',code:'GB34464-2017',remark:''},
+    {name:'饲料添加剂硫酸铜',code:'GB34459-2017',remark:''},
+    {name:'饲料添加剂硫酸镁',code:'GB32449-2015',remark:''},
+  ],
+  '医疗器械检验': [
+    {name:'医用电气设备第2-83部分:家用光治疗设备的基本安全和基本性能专用要求',code:'GB9706.283-2022',remark:''},
+    {name:'医用电气设备第2-60部分:牙科设备的基本安全和基本性能专用要求',code:'GB9706.260-2020',remark:''},
+    {name:'医用电气设备第1部分:基本安全和基本性能的通用要求',code:'GB9706.1-2020',remark:''},
+    {name:'医用电气设备第2部分:诊断X射线发生装置的高压发生器安全专用要求',code:'GB9706.3-2000',remark:'废止，仅限能力项目库范围内现行有效产品标准引用本标准及监督抽检时申请'},
+    {name:'医用输液、输血、注射器具检验方法第1部分:化学分析方法',code:'GB/T14233.1-2022',remark:''},
+    {name:'医疗器械生物学评价第1部分:风险管理过程中的评价与试验',code:'GB/T16886.1-2022',remark:''},
+    {name:'一次性使用无菌注射器',code:'GB15810-2019',remark:''},
+    {name:'一次性使用无菌注射针',code:'GB15811-2016',remark:''},
+  ],
+  '化妆品检验': [
+    {name:'化妆品安全技术规范(2015年版)',code:'国家食药监总局公告2015年第268号',remark:''},
+    {name:'化妆品中铅的测定火焰原子吸收分光光度法',code:'GB/T7917.3-1987',remark:''},
+    {name:'化妆品中砷的测定氢化物原子荧光光度法',code:'GB/T7917.2-1987',remark:''},
+    {name:'化妆品中汞的测定冷原子吸收分光光度法',code:'GB/T7917.1-1987',remark:''},
+    {name:'化妆品中甲醇的测定气相色谱法',code:'GB/T7917.4-1987',remark:''},
+    {name:'化妆品微生物标准检验方法总则',code:'GB/T7918.1-1987',remark:''},
+    {name:'化妆品微生物标准检验方法菌落总数测定',code:'GB/T7918.2-1987',remark:''},
+  ],
+  '司法鉴定检测': [
+    {name:'道路交通事故痕迹物证鉴定通用规范',code:'SF/T 0072-2020',remark:''},
+    {name:'法医学尸体检验技术总则',code:'GA/T 147-2019',remark:''},
+    {name:'法医学人体损伤检验规范',code:'GA/T 146-1996',remark:''},
+    {name:'文书鉴定通用规范',code:'SF/T 0109-2021',remark:''},
+    {name:'电子数据司法鉴定通用规范',code:'SF/T 0098-2021',remark:''},
+  ],
+};
+
+// Flatten all items with domain attribution
+const allItems = [];
+Object.keys(nationalCapLib).forEach(function(domain) {
+  nationalCapLib[domain].forEach(function(it) {
+    allItems.push({
+      domain: domain,
+      name: it.name,
+      code: it.code,
+      remark: it.remark||''
+    });
+  });
+});
+
+// ============ State ============
+let selectedDomain = null;
+
+// ============ Init ============
+function init() {
+  renderTree();
+  renderItems();
+}
+init();
+
+function renderTree() {
+  var container = document.getElementById('domainTree');
+  var html = '<div class="tree-node '+(!selectedDomain?'active':'')+'" onclick="selectDomain(null)"><span style="font-size:10px;">📋</span>全部领域<span class="count">'+allItems.length+'</span></div>';
+  Object.keys(nationalCapLib).forEach(function(domain) {
+    var count = nationalCapLib[domain].length;
+    html += '<div class="tree-node '+(selectedDomain===domain?'active':'')+'" onclick="selectDomain(&quot;'+escAttr(domain)+'&quot;)"><span style="font-size:10px;color:#999;">•</span>'+escHtml(domain)+'<span class="count">'+count+'</span></div>';
+  });
+  container.innerHTML = html;
+}
+
+function selectDomain(domain) {
+  selectedDomain = domain;
+  renderTree();
+  renderItems();
+}
+
+function getDisplayItems() {
+  var items = allItems;
+  if (selectedDomain) {
+    items = items.filter(function(it) { return it.domain === selectedDomain; });
+  }
+  var sn = (document.getElementById('searchName')&&document.getElementById('searchName').value||'').trim().toLowerCase();
+  var ss = (document.getElementById('searchStd')&&document.getElementById('searchStd').value||'').trim().toLowerCase();
+  if (sn) items = items.filter(function(it) { return it.name.toLowerCase().indexOf(sn) >= 0; });
+  if (ss) items = items.filter(function(it) { return it.code.toLowerCase().indexOf(ss) >= 0; });
+  return items;
+}
+
+function filterItems() { renderItems(); }
+function resetFilter() { document.getElementById('searchName').value = ''; document.getElementById('searchStd').value = ''; renderItems(); }
+
+function renderItems() {
+  var items = getDisplayItems();
+  var title = selectedDomain ? selectedDomain + ' — 标准清单' : '全部标准';
+  document.getElementById('panelTitle').textContent = title;
+  document.getElementById('domainSummary').style.display = selectedDomain ? 'flex' : 'none';
+  document.getElementById('domainItemCount').textContent = items.length;
+  document.getElementById('footerTotal').textContent = items.length;
+
+  var html = '';
+  if (items.length === 0) {
+    html = '<tr><td colspan="5" style="text-align:center;padding:32px;color:#ccc;">暂无匹配的标准记录</td></tr>';
+  } else {
+    items.forEach(function(it, idx) {
+      var isExpired = it.remark.indexOf('废止') >= 0;
+      var statusTag = isExpired ? '<span class="tag tag-orange">已废止</span>' : '<span class="tag tag-green">有效</span>';
+      var remarkHtml = it.remark ? '<span class="note-tooltip" title="'+escAttr(it.remark)+'">'+escHtml(it.remark)+'</span>' : '<span style="color:#ccc;">—</span>';
+      html += '<tr>'+
+        '<td style="text-align:center;">'+(idx+1)+'</td>'+
+        '<td>'+escHtml(it.name)+'</td>'+
+        '<td style="font-family:monospace;font-size:12px;color:#1890ff;">'+escHtml(it.code)+'</td>'+
+        '<td style="font-size:11px;">'+remarkHtml+'</td>'+
+        '<td>'+statusTag+'</td>'+
+        '</tr>';
+    });
+  }
+  document.getElementById('itemTableBody').innerHTML = html;
+}
+
+function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function escAttr(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>

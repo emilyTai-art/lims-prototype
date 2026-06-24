@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>合同模板管理 - LIMS 商务阶段</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: #f0f2f5; color: #333; }
+  .app { display: flex; min-height: 100vh; }
+  .sidebar { width: 220px; background: #001529; color: #fff; flex-shrink: 0; }
+  .sidebar .logo { padding: 20px; font-size: 18px; font-weight: 700; border-bottom: 1px solid rgba(255,255,255,.1); letter-spacing: 1px; }
+  .sidebar .logo span { color: #1890ff; }
+  .sidebar .menu-group { padding: 8px 0; }
+  .sidebar .menu-group-title { padding: 12px 24px 4px; font-size: 12px; color: rgba(255,255,255,.45); text-transform: uppercase; }
+  .sidebar .menu-item { padding: 10px 24px; cursor: pointer; font-size: 14px; transition: all .2s; display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.65); text-decoration: none; }
+  .sidebar .menu-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+  .sidebar .menu-item.active { background: #1890ff; font-weight: 600; color: #fff; }
+  .sidebar .menu-item .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.5); }
+  .sidebar .menu-item.active .dot { background: #fff; }
+  .sidebar .menu-badge { margin-left: auto; background: #ff4d4f; color: #fff; font-size: 11px; padding: 1px 6px; border-radius: 10px; }
+
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar { height: 48px; background: #fff; border-bottom: 1px solid #e8e8e8; display: flex; align-items: center; padding: 0 24px; justify-content: space-between; font-size: 13px; color: #666; }
+  .content { flex: 1; padding: 24px; overflow-y: auto; }
+  .breadcrumb { font-size: 13px; color: #999; margin-bottom: 16px; }
+  .breadcrumb a { color: #1890ff; text-decoration: none; }
+  .breadcrumb span { color: #333; }
+  .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+  .page-header h2 { font-size: 20px; font-weight: 600; }
+  .card { background: #fff; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 20px; }
+  .card-title { padding: 16px 20px; font-size: 15px; font-weight: 600; border-bottom: 1px solid #f0f0f0; }
+  .card-body { padding: 20px; }
+  .btn { height: 32px; padding: 0 16px; border-radius: 4px; font-size: 13px; cursor: pointer; border: 1px solid #d9d9d9; background: #fff; color: #333; display: inline-flex; align-items: center; gap: 6px; transition: all .2s; white-space: nowrap; }
+  .btn:hover { border-color: #1890ff; color: #1890ff; }
+  .btn:active { opacity: 0.85; transform: translateY(1px); }
+  .btn-primary { background: #1890ff; border-color: #1890ff; color: #fff; }
+  .btn-primary:hover { background: #40a9ff; border-color: #40a9ff; color: #fff; }
+  .btn-danger { color: #ff4d4f; }
+  .btn-danger:hover { border-color: #ff4d4f; color: #ff4d4f; }
+  .btn-sm { height: 26px; padding: 0 10px; font-size: 12px; }
+  .btn-ghost { border: none; background: transparent; color: #1890ff; padding: 0 8px; }
+  .btn-ghost:hover { background: rgba(24,144,255,.06); }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 2px; font-size: 12px; margin-left: 8px; }
+  .tag-green { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+  .tag-default { background: #f5f5f5; color: #999; border: 1px solid #e8e8e8; }
+  .template-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+  .template-card { border: 1px solid #f0f0f0; border-radius: 6px; padding: 20px; transition: box-shadow .2s; position: relative; }
+  .template-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+  .template-card .tpl-icon { width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 12px; }
+  .tpl-icon-blue { background: #e6f7ff; color: #1890ff; }
+  .tpl-icon-green { background: #f6ffed; color: #52c41a; }
+  .tpl-icon-orange { background: #fff7e6; color: #fa8c16; }
+  .tpl-icon-purple { background: #f9f0ff; color: #722ed1; }
+  .tpl-icon-cyan { background: #e6fffb; color: #13c2c2; }
+  .template-card h4 { font-size: 15px; margin-bottom: 6px; }
+  .template-card .desc { font-size: 12px; color: #888; margin-bottom: 12px; }
+  .template-card .meta { font-size: 12px; color: #aaa; margin-bottom: 12px; }
+  .template-card .actions { display: flex; gap: 8px; }
+  .upload-zone { border: 2px dashed #d9d9d9; border-radius: 6px; padding: 32px; text-align: center; cursor: pointer; transition: border .2s; }
+  .upload-zone:hover { border-color: #1890ff; }
+  .upload-zone .upload-icon { font-size: 36px; color: #bbb; margin-bottom: 8px; }
+  .upload-zone p { font-size: 13px; color: #888; }
+  .upload-zone p strong { color: #1890ff; }
+
+  .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; opacity: 0; visibility: hidden; transition: opacity .3s, visibility .3s; }
+  .drawer-overlay.show { opacity: 1; visibility: visible; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 560px; background: #fff; box-shadow: -6px 0 20px rgba(0,0,0,.12); z-index: 1001; display: flex; flex-direction: column; transform: translateX(100%); transition: transform .3s cubic-bezier(.25,.8,.25,1); }
+  .drawer-overlay.show .drawer { transform: translateX(0); }
+  .drawer-header { padding: 16px 24px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+  .drawer-header h3 { font-size: 16px; font-weight: 600; }
+  .drawer-close { width: 28px; height: 28px; border: none; background: transparent; font-size: 18px; cursor: pointer; color: #999; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+  .drawer-close:hover { background: #f5f5f5; color: #333; }
+  .drawer-body { flex: 1; padding: 24px; overflow-y: auto; }
+  .drawer-footer { padding: 12px 24px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 8px; flex-shrink: 0; }
+  .form-group { margin-bottom: 14px; }
+  .form-group label { display: block; font-size: 13px; color: #333; margin-bottom: 4px; font-weight: 500; }
+  .form-group label .required { color: #ff4d4f; }
+  .form-group input, .form-group select { width: 100%; height: 34px; padding: 0 10px; border: 1px solid #d9d9d9; border-radius: 4px; font-size: 13px; outline: none; }
+  .form-group input:focus, .form-group select:focus { border-color: #1890ff; box-shadow: 0 0 0 2px rgba(24,144,255,.15); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .file-info { background: #fafafa; padding: 10px 14px; border-radius: 4px; font-size: 12px; color: #666; margin-top: 8px; display: none; }
+  .file-info.show { display: block; }
+  .switch { position: relative; width: 40px; height: 22px; display: inline-block; }
+  .switch input { display: none; }
+  .switch .slider { position: absolute; inset: 0; background: #ccc; border-radius: 22px; cursor: pointer; transition: .3s; }
+  .switch .slider::before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .3s; }
+  .switch input:checked + .slider { background: #1890ff; }
+  .switch input:checked + .slider::before { transform: translateX(18px); }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <div class="logo">LIMS<span>系统</span></div>
+    <div class="menu-group">
+      <div class="menu-group-title">商务阶段</div>
+      <a href="客户管理.html" class="menu-item"><span class="dot"></span>客户管理</a>
+      <a href="委托单管理.html" class="menu-item"><span class="dot"></span>委托单管理</a>
+      <a href="合同管理.html" class="menu-item"><span class="dot"></span>合同管理</a>
+    </div>
+    <div class="menu-group">
+      <div class="menu-group-title">基础业务信息管理</div>
+      <div class="menu-item active"><span class="dot"></span>合同模板管理</div>
+      <a href="价格管理.html" class="menu-item"><span class="dot"></span>价格管理</a>
+      <a href="CMA资质项管理.html" class="menu-item"><span class="dot"></span>CMA资质项管理</a>
+      <a href="CNAS资质项管理.html" class="menu-item"><span class="dot"></span>CNAS资质项管理</a>
+      <a href="国家能力库.html" class="menu-item"><span class="dot"></span>国家能力库</a>
+    </div>
+    <div class="menu-group">
+      <div class="menu-group-title">流程引擎</div>
+      <a href="流程引擎-待办列表.html" class="menu-item"><span class="dot"></span>待办任务<span class="menu-badge">8</span></a>
+      <a href="流程引擎-已办列表.html" class="menu-item"><span class="dot"></span>已办任务</a>
+    </div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <span>商务阶段</span>
+      <span>内勤部 · 李婷</span>
+    </div>
+    <div class="content">
+      <div class="breadcrumb"><a href="#">首页</a> &gt; <span>合同模板管理</span></div>
+      <div class="page-header">
+        <h2>合同模板管理</h2>
+        <button class="btn btn-primary" onclick="showUploadDrawer()">+ 上传模板</button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">模板列表（共 5 类）</div>
+        <div class="card-body">
+          <div class="template-grid">
+            <div class="template-card">
+              <div class="tpl-icon tpl-icon-blue">📄</div>
+              <h4>双方检验检测协议书 <label class="switch" style="float:right"><input type="checkbox" checked><span class="slider"></span></label></h4>
+              <div class="desc">标准委托，委托方与检测方两方</div>
+              <div class="meta">编码：TPL-BOTH · 更新时间：2025-12-01</div>
+              <div class="actions">
+                <button class="btn btn-sm">下载</button>
+                <button class="btn btn-sm" onclick="showUploadDrawer()">替换</button>
+                <button class="btn btn-sm btn-danger" onclick="if(confirm('确定删除此模板？'))this.closest('.template-card').remove()">删除</button>
+              </div>
+            </div>
+            <div class="template-card">
+              <div class="tpl-icon tpl-icon-green">📃</div>
+              <h4>三方检验检测协议书 <label class="switch" style="float:right"><input type="checkbox" checked><span class="slider"></span></label></h4>
+              <div class="desc">第三方付款，付款单位也需盖章</div>
+              <div class="meta">编码：TPL-TRIPARTY · 更新时间：2025-12-01</div>
+              <div class="actions">
+                <button class="btn btn-sm">下载</button>
+                <button class="btn btn-sm" onclick="showUploadDrawer()">替换</button>
+                <button class="btn btn-sm btn-danger" onclick="if(confirm('确定删除此模板？'))this.closest('.template-card').remove()">删除</button>
+              </div>
+            </div>
+            <div class="template-card">
+              <div class="tpl-icon tpl-icon-orange">🏗️</div>
+              <h4>检验检测协议书（含建设/监理） <label class="switch" style="float:right"><input type="checkbox" checked><span class="slider"></span></label></h4>
+              <div class="desc">需体现监理单位、建设单位名称和地址、项目名称</div>
+              <div class="meta">编码：TPL-CONSTRUCT · 更新时间：2025-12-01</div>
+              <div class="actions">
+                <button class="btn btn-sm">下载</button>
+                <button class="btn btn-sm" onclick="showUploadDrawer()">替换</button>
+                <button class="btn btn-sm btn-danger" onclick="if(confirm('确定删除此模板？'))this.closest('.template-card').remove()">删除</button>
+              </div>
+            </div>
+            <div class="template-card">
+              <div class="tpl-icon tpl-icon-cyan">🌿</div>
+              <h4>环境技术服务合同-送样 <label class="switch" style="float:right"><input type="checkbox" checked><span class="slider"></span></label></h4>
+              <div class="desc">水土气环境类，客户自行送样</div>
+              <div class="meta">编码：TPL-ENV-SEND · 更新时间：2025-12-01</div>
+              <div class="actions">
+                <button class="btn btn-sm">下载</button>
+                <button class="btn btn-sm" onclick="showUploadDrawer()">替换</button>
+                <button class="btn btn-sm btn-danger" onclick="if(confirm('确定删除此模板？'))this.closest('.template-card').remove()">删除</button>
+              </div>
+            </div>
+            <div class="template-card">
+              <div class="tpl-icon tpl-icon-purple">🔬</div>
+              <h4>环境技术服务合同-取样 <label class="switch" style="float:right"><input type="checkbox" checked><span class="slider"></span></label></h4>
+              <div class="desc">水土气环境类，由公司上门取样</div>
+              <div class="meta">编码：TPL-ENV-SAMPLE · 更新时间：2025-12-01</div>
+              <div class="actions">
+                <button class="btn btn-sm">下载</button>
+                <button class="btn btn-sm" onclick="showUploadDrawer()">替换</button>
+                <button class="btn btn-sm btn-danger" onclick="if(confirm('确定删除此模板？'))this.closest('.template-card').remove()">删除</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="drawer-overlay" id="uploadDrawer">
+  <div class="drawer">
+    <div class="drawer-header">
+      <h3>上传合同模板</h3>
+      <button class="drawer-close" onclick="closeUploadDrawer()">✕</button>
+    </div>
+    <div class="drawer-body">
+      <div class="form-group"><label>模板名称 <span class="required">*</span></label><input type="text" placeholder="如：双方检验检测协议书"></div>
+      <div class="form-row">
+        <div class="form-group"><label>模板编码 <span class="required">*</span></label><input type="text" placeholder="如：TPL-BOTH"></div>
+        <div class="form-group"><label>适用业务类型</label><select><option>通用</option><option>环境</option><option>建设</option></select></div>
+      </div>
+      <div class="form-group">
+        <label>上传文件</label>
+        <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+          <div class="upload-icon">📁</div>
+          <p>点击上传 <strong>Word / PDF</strong> 格式合同模板</p>
+        </div>
+        <input type="file" id="fileInput" style="display:none" accept=".doc,.docx,.pdf" onchange="handleFile(this)">
+        <div class="file-info" id="fileInfo">已选择：<span id="fileName"></span></div>
+      </div>
+    </div>
+    <div class="drawer-footer">
+      <button class="btn" onclick="closeUploadDrawer()">取消</button>
+      <button class="btn btn-primary" onclick="closeUploadDrawer()">上传</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showUploadDrawer() { document.getElementById('uploadDrawer').classList.add('show'); }
+function closeUploadDrawer() { document.getElementById('uploadDrawer').classList.remove('show'); }
+function handleFile(input) {
+  if (input.files.length > 0) {
+    document.getElementById('fileName').textContent = input.files[0].name;
+    document.getElementById('fileInfo').classList.add('show');
+  }
+}
+// Close drawer on overlay click
+document.getElementById('uploadDrawer').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('show');
+});
+</script>
+</body>
+</html>
