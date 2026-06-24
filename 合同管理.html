@@ -473,6 +473,26 @@ function exportContractList() {
   a.href = url; a.download = '合同列表_' + now + '.csv'; a.click();
   URL.revokeObjectURL(url);
 }
+
+// Auto-open detail drawer via URL param ?contract=XXX
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var contractNo = params.get('contract');
+  if (contractNo) {
+    var found = null;
+    for (var i = 0; i < contractDetails.length; i++) {
+      if (contractDetails[i].contractNo === contractNo) { found = i; break; }
+    }
+    if (found !== null) {
+      // Wait for DOM ready then open
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() { openDetailDrawer(found); });
+      } else {
+        openDetailDrawer(found);
+      }
+    }
+  }
+})();
 </script>
 </body>
 </html>

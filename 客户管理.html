@@ -184,12 +184,8 @@
             <input type="text" placeholder="请输入税号" oninput="filterTable()" id="searchTaxId">
           </div>
           <div class="field">
-            <label>客户状态</label>
-            <select onchange="filterTable()" id="searchStatus">
-              <option value="">全部</option>
-              <option value="正常">正常</option>
-              <option value="已停用">已停用</option>
-            </select>
+            <label>委托单位类型</label>
+            <input type="text" placeholder="请输入类型" oninput="filterTable()" id="searchUnitType">
           </div>
           <div class="field">
             <label>省</label>
@@ -204,8 +200,12 @@
             </select>
           </div>
           <div class="field">
-            <label>委托单位类型</label>
-            <input type="text" placeholder="请输入类型" oninput="filterTable()" id="searchUnitType">
+            <label>客户状态</label>
+            <select onchange="filterTable()" id="searchStatus">
+              <option value="">全部</option>
+              <option value="正常">正常</option>
+              <option value="已停用">已停用</option>
+            </select>
           </div>
           <div style="display:flex;gap:8px;align-self:flex-end;">
             <button class="btn btn-primary" onclick="filterTable()">查询</button>
@@ -221,12 +221,12 @@
                 <th>客户编号</th>
                 <th>委托单位名称</th>
                 <th>税号</th>
+                <th>委托单位类型</th>
+                <th>邮箱</th>
                 <th>省</th>
                 <th>市</th>
-                <th>委托单位类型</th>
-                <th>联系人</th>
                 <th>地址</th>
-                <th>邮箱</th>
+                <th>联系人</th>
                 <th>客户状态</th>
                 <th>创建时间</th>
                 <th style="width:220px;">操作</th>
@@ -368,6 +368,12 @@
       </div>
       <div class="form-row">
         <div class="form-group">
+          <label>邮箱</label>
+          <input type="text" id="formEmail" placeholder="请输入邮箱">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
           <label>省</label>
           <select id="formProvince" onchange="updateFormCities()">
             <option value="">请选择</option>
@@ -378,12 +384,6 @@
           <select id="formCity">
             <option value="">请选择</option>
           </select>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>邮箱</label>
-          <input type="text" id="formEmail" placeholder="请输入邮箱">
         </div>
       </div>
       <div class="form-group">
@@ -494,12 +494,12 @@ function renderList() {
         <td style="color:#1890ff;cursor:pointer;" onclick="showDetail(${c.id})"><strong>${c.customer_no}</strong></td>
         <td>${c.company_name}</td>
         <td>${c.tax_id || '<span style="color:#ccc;">-</span>'}</td>
+        <td>${c.unit_type || '-'}</td>
+        <td>${c.contact_email || '-'}</td>
         <td>${c.province || '-'}</td>
         <td>${c.city || '-'}</td>
-        <td>${c.unit_type || '-'}</td>
-        <td>${contactDisplay}</td>
         <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${c.contact_address || ''}">${c.contact_address || '-'}</td>
-        <td>${c.contact_email || '-'}</td>
+        <td>${contactDisplay}</td>
         <td>${c.status === '正常' ? '<span class="tag tag-green">正常</span>' : '<span class="tag tag-red">已停用</span>'}</td>
         <td>${c.created_at.split(' ')[0]}</td>
         <td>
@@ -659,10 +659,10 @@ function renderDetail() {
     <div class="info-item"><span class="info-label">委托单位名称</span><span class="info-value">${c.company_name}</span></div>
     <div class="info-item"><span class="info-label">客户状态</span><span class="info-value">${c.status === '正常' ? '<span class="tag tag-green">正常</span>' : '<span class="tag tag-red">已停用</span>'}</span></div>
     <div class="info-item"><span class="info-label">税号</span><span class="info-value">${c.tax_id || '-'}</span></div>
-    <div class="info-item"><span class="info-label">省</span><span class="info-value">${c.province || '-'}</span></div>
-    <div class="info-item"><span class="info-label">市</span><span class="info-value">${c.city || '-'}</span></div>
     <div class="info-item"><span class="info-label">委托单位类型</span><span class="info-value">${c.unit_type || '-'}</span></div>
     <div class="info-item"><span class="info-label">邮箱</span><span class="info-value">${c.contact_email || '-'}</span></div>
+    <div class="info-item"><span class="info-label">省</span><span class="info-value">${c.province || '-'}</span></div>
+    <div class="info-item"><span class="info-label">市</span><span class="info-value">${c.city || '-'}</span></div>
     <div class="info-item"><span class="info-label">创建时间</span><span class="info-value">${c.created_at}</span></div>
     <div class="info-item" style="grid-column:span 3;"><span class="info-label">地址</span><span class="info-value">${c.contact_address || '-'}</span></div>
   `;
@@ -823,25 +823,25 @@ function csvCell(val) { var s = String(val==null?'':val); return /[,\n"]/.test(s
 function exportCustomerList() {
   var visibleRows = document.querySelectorAll('#customerTableBody tr:not([style*="display: none"])');
   var now = new Date().toISOString().slice(0,10);
-  var header = '\uFEFF客户编号,委托单位名称,税号,省,市,委托单位类型,联系人,电话,地址,邮箱,客户状态,创建时间';
+  var header = '\uFEFF客户编号,委托单位名称,税号,委托单位类型,邮箱,省,市,地址,联系人,电话,客户状态,创建时间';
   var rows = [];
   visibleRows.forEach(function(row) {
     var cells = row.querySelectorAll('td');
     var cno = (cells[0].textContent||'').trim();
     var company = (cells[1].textContent||'').trim();
     var tax = (cells[2].textContent||'').trim();
-    var prov = (cells[3].textContent||'').trim();
-    var city = (cells[4].textContent||'').trim();
-    var unitType = (cells[5].textContent||'').trim();
-    var contactCell = (cells[6].textContent||'').trim();
+    var unitType = (cells[3].textContent||'').trim();
+    var email = (cells[4].textContent||'').trim();
+    var prov = (cells[5].textContent||'').trim();
+    var city = (cells[6].textContent||'').trim();
+    var addr = (cells[7].textContent||'').trim();
+    var contactCell = (cells[8].textContent||'').trim();
     var parts = contactCell.split(' ');
     var contactName = parts[0] || '';
     var contactPhone = parts.slice(1).join(' ') || '';
-    var addr = (cells[7].textContent||'').trim();
-    var email = (cells[8].textContent||'').trim();
     var status = (cells[9].textContent||'').trim();
     var created = (cells[10].textContent||'').trim();
-    rows.push([cno, company, tax, prov, city, unitType, contactName, contactPhone, addr, email, status, created].map(csvCell).join(','));
+    rows.push([cno, company, tax, unitType, email, prov, city, addr, contactName, contactPhone, status, created].map(csvCell).join(','));
   });
   var csv = header + '\n' + rows.join('\n');
   var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});

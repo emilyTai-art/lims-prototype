@@ -430,7 +430,7 @@ function toggleRowExpand(ri) { openItemDrawer(ri); }
 function renderSampleTable() {
   const container = document.getElementById('sampleTableContainer');
   if (sampleRows.length===0) { container.innerHTML='<div style="text-align:center;padding:24px;color:#ccc;">暂无样品，点击下方按钮添加</div>'; return; }
-  let html = '<table class="sample-table"><thead><tr><th style="width:30px;">#</th><th>受检单位名称<span style="color:#ff4d4f;">*</span></th><th>受检单位税号</th><th>受检单位联系人<span style="color:#ff4d4f;">*</span></th><th>受检单位电话</th><th>样品名称<span style="color:#ff4d4f;">*</span></th><th>生产单位</th><th>商标</th><th>规格型号</th><th>生产日期</th><th>送样人</th><th>样品状态</th><th>样品等级</th><th>数量</th><th style="width:180px;">检测项目</th><th style="width:80px;">操作</th></tr></thead><tbody>';
+  let html = '<table class="sample-table"><thead><tr><th style="width:30px;">#</th><th>受检单位名称<span style="color:#ff4d4f;">*</span></th><th>受检单位税号</th><th>受检单位联系人</th><th>受检单位电话</th><th>样品名称<span style="color:#ff4d4f;">*</span></th><th>生产单位</th><th>商标</th><th>规格型号</th><th>生产日期</th><th>送样人</th><th>样品状态</th><th>样品等级</th><th>数量</th><th style="width:180px;">检测项目</th><th style="width:80px;">操作</th></tr></thead><tbody>';
   sampleRows.forEach((r, ri) => {
     const itemCount = r.items.filter(it=>it.test_item_name).length;
     const itemSummary = itemCount > 0
@@ -503,10 +503,8 @@ function saveIntention() {
   if (sampleRows.length===0) { alert('请至少添加一个样品'); return; }
   // Validate required fields
   var hasEmptyUnitName = sampleRows.some(function(r) { return !r.inspected_unit_name.trim(); });
-  var hasEmptyContact = sampleRows.some(function(r) { return !r.inspected_unit_contact.trim(); });
   var hasEmptySample = sampleRows.some(function(r) { return !r.sample_name.trim(); });
   if (hasEmptyUnitName) { alert('所有样品的受检单位名称为必填项，请检查'); return; }
-  if (hasEmptyContact) { alert('所有样品的受检单位联系人为必填项，请检查'); return; }
   if (hasEmptySample) { alert('所有样品的样品名称为必填项，请检查'); return; }
   const hasItem = sampleRows.some(r=>r.items.some(it=>it.test_item_name));
   if (!hasItem) { alert('请至少为一个样品配置检测项目'); return; }

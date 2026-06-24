@@ -266,7 +266,7 @@ function mockAbilityCheck(itemName, standard) {
 }
 
 const mockIntentions = [
-  { id:1, intention_no:'ITN202606001', customer_id:1, contact_id:1, inspection_type:'委托检验', report_type:'判定', report_copies:2, need_return_sample:0, report_delivery:'电子', mail_address:'北京市海淀区西三环北路100号', witness:'', total_price:1290, final_price:1161, status:'已结束', created_at:'2026-06-05 09:30:00', contract_no:'CON202606001', samples:[
+  { id:1, intention_no:'ITN202606001', customer_id:1, contact_id:1, inspection_type:'委托检验', report_type:'判定', report_copies:2, need_return_sample:0, report_delivery:'电子', mail_address:'北京市海淀区西三环北路100号', witness:'', total_price:1290, final_price:1161, status:'已结束', created_at:'2026-06-05 09:30:00', contract_no:'HT202606001', samples:[
     {inspected_unit_name:'北京城建集团有限责任公司',inspected_unit_tax_no:'91110000100012345X',inspected_unit_contact:'李明',inspected_unit_phone:'13812345678',producer:'',trademark:'',spec_model:'',production_date:'',sample_name:'塑胶跑道面层',sender:'李明',sample_status:'固体完好，深红色',sample_grade:'优等品',sample_qty:3},
     {inspected_unit_name:'北京城建集团有限责任公司',inspected_unit_tax_no:'91110000100012345X',inspected_unit_contact:'李明',inspected_unit_phone:'13812345678',producer:'XX草坪厂',trademark:'绿茵',spec_model:'TY-50',production_date:'2026-03',sample_name:'人造草坪',sender:'李明',sample_status:'',sample_grade:'',sample_qty:2}],
     items:[
@@ -489,13 +489,13 @@ function createContractFromDetail() { if(currentDetail)createContract(currentDet
 function createContract(id) {
   const i = mockIntentions.find(x=>x.id===id);
   if(!i||i.status!=='审批通过'){alert('仅审批通过的委托单可生成合同');return;}
-  var conId = 'CON'+new Date().toISOString().slice(0,10).replace(/-/g,'')+String(Math.floor(Math.random()*900+100));
+  var conId = 'HT'+new Date().toISOString().slice(0,10).replace(/-/g,'')+String(Math.floor(Math.random()*900+100));
   i.contract_no = conId; i.status = '已结束';
-  alert('合同 '+conId+' 已生成，即将跳转合同管理。');
+  alert('合同 '+conId+' 已生成，即将跳转合同新建。');
   renderList();
-  window.location.href = '合同管理.html';
+  window.location.href = '合同新建.html';
 }
-function goToContract(no) { window.location.href = '合同管理.html'; }
+function goToContract(no) { window.location.href = '合同管理.html?contract=' + encodeURIComponent(no); }
 
 function endIntention(id) {
   const i = mockIntentions.find(x=>x.id===id);
